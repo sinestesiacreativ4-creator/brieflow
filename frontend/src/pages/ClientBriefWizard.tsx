@@ -372,28 +372,83 @@ export default function ClientBriefWizard() {
                 break;
 
             case 'ADVERTISING_CAMPAIGN':
-                if (data.campaignGoal) mapped.projectGoals = `Objetivo: ${data.campaignGoal}\n\nProducto: ${data.productService || ''}\nDuration: ${data.campaignDuration || ''}`;
+                if (data.campaignGoal) mapped.projectGoals = `Objetivo: ${data.campaignGoal}\n\nProducto: ${data.productService || ''}\nDuración: ${data.campaignDuration || ''}`;
                 if (data.targetAudience) mapped.targetAudience = data.targetAudience + (data.audiencePain ? `\n\nPain Point: ${data.audiencePain}` : '');
                 if (data.keyMessage) mapped.keyMessage = data.keyMessage + (data.tagline ? `\n\nTagline: ${data.tagline}` : '') + (data.callToAction ? `\nCTA: ${data.callToAction}` : '');
                 if (data.adChannels) mapped.communicationTone = `Canales: ${data.adChannels}\nMedia Budget: ${data.mediaBudget || ''}`;
                 break;
 
-            // Add basic mappings for others to ensure data is not lost
-            default:
-                // Generic fallback: dump unknown fields into additionalNotes if not mapped
-                const knownFields = ['projectName', 'projectGoals', 'targetAudience', 'budget', 'timeline', 'deliverables', 'additionalNotes'];
-                const extraData: string[] = [];
-                Object.keys(data).forEach(key => {
-                    if (!knownFields.includes(key) && !['files', 'budget', 'timeline', 'deliverables', 'additionalNotes'].includes(key)) {
-                        if (typeof data[key] === 'string') {
-                            extraData.push(`${key}: ${data[key]}`);
-                        }
-                    }
-                });
-                if (extraData.length) {
-                    mapped.projectGoals = (mapped.projectGoals || '') + '\n\n' + extraData.join('\n');
-                }
+            case 'VIDEO_PRODUCTION': {
+                const videoGoals = [];
+                if (data.videoType) videoGoals.push(`Tipo de Video: ${data.videoType}`);
+                if (data.videoGoal) videoGoals.push(`Objetivo: ${data.videoGoal}`);
+                if (data.videoDuration) videoGoals.push(`Duración: ${data.videoDuration}`);
+                if (videoGoals.length) mapped.projectGoals = videoGoals.join('\n\n');
+
+                const videoProd = [];
+                if (data.location) videoProd.push(`Ubicación: ${data.location}`);
+                if (data.talent) videoProd.push(`Talento: ${data.talent}`);
+                if (data.script) videoProd.push(`--- Guión/Idea ---\n${data.script}`);
+                if (videoProd.length) mapped.keyMessage = videoProd.join('\n\n');
+
+                const videoDist = [];
+                if (data.videoDistribution) videoDist.push(`Distribución: ${data.videoDistribution}`);
+                if (data.musicNeeds) videoDist.push(`Música: ${data.musicNeeds}`);
+                if (videoDist.length) mapped.communicationTone = videoDist.join('\n\n');
                 break;
+            }
+
+            case 'SOCIAL_MEDIA': {
+                const socialGoals = [];
+                if (data.socialGoal) socialGoals.push(`Objetivo: ${data.socialGoal}`);
+                if (data.currentPresence) socialGoals.push(`--- Presencia Actual ---\n${data.currentPresence}`);
+                if (data.postFrequency) socialGoals.push(`Frecuencia actual: ${data.postFrequency}`);
+                if (socialGoals.length) mapped.projectGoals = socialGoals.join('\n\n');
+
+                const socialPlatforms = [];
+                if (data.platforms) socialPlatforms.push(`Plataformas: ${data.platforms}`);
+                if (data.postsPerMonth) socialPlatforms.push(`Posts/Mes: ${data.postsPerMonth}`);
+                if (socialPlatforms.length) mapped.targetAudience = socialPlatforms.join('\n\n');
+
+                const socialContent = [];
+                if (data.contentType) socialContent.push(`Tipo de Contenido: ${data.contentType}`);
+                if (data.communityManagement) socialContent.push(`Gestión: ${data.communityManagement}`);
+                if (socialContent.length) mapped.keyMessage = socialContent.join('\n\n');
+                break;
+            }
+
+            case 'PACKAGING': {
+                const packGoals = [];
+                if (data.productDescription) packGoals.push(`--- Producto ---\n${data.productDescription}`);
+                if (data.isRedesign) packGoals.push(`Tipo: ${data.isRedesign}`);
+                if (data.salesChannel) packGoals.push(`--- Canal de Venta ---\n${data.salesChannel}`);
+                if (packGoals.length) mapped.projectGoals = packGoals.join('\n\n');
+
+                const packDesign = [];
+                if (data.brandIdentity) packDesign.push(`Identidad de Marca: ${data.brandIdentity}`);
+                if (data.visualStyle) packDesign.push(`Estilo Visual: ${data.visualStyle}`);
+                if (data.packagingReferences) packDesign.push(`--- Referencias ---\n${data.packagingReferences}`);
+                if (packDesign.length) mapped.communicationTone = packDesign.join('\n\n');
+
+                const packDetails = [];
+                if (data.materialRestrictions) packDetails.push(`--- Materiales ---\n${data.materialRestrictions}`);
+                if (data.requiredInfo) packDetails.push(`--- Info Requerida ---\n${data.requiredInfo}`);
+                if (packDetails.length) mapped.keyMessage = packDetails.join('\n\n');
+                break;
+            }
+
+            case 'OTHER':
+            default: {
+                // For OTHER and unknown types: capture all fields
+                const otherGoals = [];
+                if (data.projectDescription) otherGoals.push(`--- Descripción ---\n${data.projectDescription}`);
+                if (data.projectGoals) otherGoals.push(`--- Objetivos ---\n${data.projectGoals}`);
+                if (otherGoals.length) mapped.projectGoals = otherGoals.join('\n\n');
+
+                if (data.references) mapped.competitors = `--- Referencias ---\n${data.references}`;
+                if (data.restrictions) mapped.keyMessage = `--- Restricciones ---\n${data.restrictions}`;
+                break;
+            }
         }
 
         return mapped;
