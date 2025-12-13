@@ -55,7 +55,9 @@ app.use('/api/team', authenticateToken, teamRoutes);
 app.use('/api/files', authenticateToken, fileRoutes);
 app.use('/api/dashboard', authenticateToken, dashboardRoutes);
 app.use('/api/upload', authenticateToken, uploadRoutes);
-app.use('/api/notifications', authenticateToken, notificationRoutes);
+app.use('/api/notifications', notificationRoutes);
+
+console.log('✅ Notification routes loaded (V2)');
 
 // Setup socket handlers
 setupSocketHandlers(io);
