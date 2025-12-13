@@ -1,9 +1,10 @@
 import axios from 'axios';
 
+const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+const baseURL = isProduction ? 'https://brieflow.onrender.com/api' : 'http://localhost:3001/api';
+
 const api = axios.create({
-    baseURL: import.meta.env.MODE === 'production'
-        ? 'https://brieflow.onrender.com/api'
-        : (import.meta.env.VITE_API_URL || 'http://localhost:3001/api'),
+    baseURL,
     headers: {
         'Content-Type': 'application/json',
     },
