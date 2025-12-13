@@ -28,14 +28,14 @@ model User {
   email         String    @unique
   password      String
   name          String
-  role          String    @default("AGENCY_MEMBER") // Keeping original type and default for role
-  agencyId      String?   // Changed to optional as per snippet
-  agency        Agency?   @relation(fields: [agencyId], references: [id]) // Changed to optional and onDelete removed as per snippet
-  createdAt     DateTime  @default(now())
-  projects      Project[] // Projects assigned to this user (comment added from snippet)
+  role          String    @default("AGENCY_MEMBER")
+  agencyId      String?
+  agency        Agency?   @relation(fields: [agencyId], references: [id])
+  projects      Project[]
   messages      Message[]
-  notifications Notification[] // Added from snippet
-  pushSubscriptions PushSubscription[] // Added from snippet
+  // notifications Notification[] <-- Relación removida TEMPORALMENTE para evitar error de FK en datos antiguos
+  pushSubscriptions PushSubscription[]
+  createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
 }
 
@@ -72,7 +72,7 @@ model Project {
   name         String
   type         String
   status       String    @default("BRIEF_PENDING")
-  notionUrl    String?   // New field for Notion integration
+  notionUrl    String?
   agencyId     String
   agency       Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   clientId     String
@@ -147,7 +147,7 @@ model Notification {
   message   String
   read      Boolean  @default(false)
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // user      User     @relation(fields: [userId], references: [id], onDelete: Cascade) <-- Relación removida TEMPORALMENTE
   agencyId  String
   projectId String?
   createdAt DateTime @default(now())
