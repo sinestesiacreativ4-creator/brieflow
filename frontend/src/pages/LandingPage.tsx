@@ -19,13 +19,13 @@ export default function LandingPage() {
             {/* Navigation */}
             <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all duration-300">
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                    <Link to="/" className="flex items-center gap-3 group">
+                    <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
                         <img
                             src="/logo.png"
                             alt="BriefFlow Logo"
-                            className="w-12 h-12 object-contain filter drop-shadow-md group-hover:scale-110 group-hover:drop-shadow-xl transition-all duration-300"
+                            className="w-9 h-9 sm:w-12 sm:h-12 object-contain filter drop-shadow-md group-hover:scale-110 group-hover:drop-shadow-xl transition-all duration-300"
                         />
-                        <span className="text-2xl font-bold text-gray-900 tracking-tight">Brief<span className="text-blue-600">Flow</span></span>
+                        <span className="text-lg sm:text-2xl font-bold text-gray-900 tracking-tight">Brief<span className="text-blue-600">Flow</span></span>
                     </Link>
 
                     <nav className="hidden md:flex items-center gap-8">
@@ -55,7 +55,7 @@ export default function LandingPage() {
             </header>
 
             {/* Hero Section */}
-            <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+            <section className="relative pt-24 pb-16 md:pt-32 lg:pt-48 md:pb-20 lg:pb-32 overflow-hidden">
                 <ParticlesBackground color="#3b82f6" count={60} />
 
                 {/* Background Decor */}
@@ -105,8 +105,8 @@ export default function LandingPage() {
                     </div>
                 </div>
 
-                {/* Dashboard Mockup - Hidden on very small screens */}
-                <div className="mt-20 px-4 animate-fade-in hidden sm:block" style={{ animationDelay: '0.5s' }}>
+                {/* Dashboard Mockup - Hidden on mobile (below 768px) */}
+                <div className="mt-20 px-4 animate-fade-in hidden md:block" style={{ animationDelay: '0.5s' }}>
                     <div className="max-w-5xl mx-auto relative group">
                         <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                         <div className="relative bg-white rounded-2xl border border-gray-200 shadow-2xl overflow-hidden ring-1 ring-black/5">
