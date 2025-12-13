@@ -145,7 +145,7 @@ router.post('/:id/submit', async (req: AuthRequest, res: Response) => {
             const admin = await prisma.user.findFirst({
                 where: { agencyId: brief.agencyId, role: { in: ['AGENCY_OWNER', 'AGENCY_ADMIN'] } }
             });
-            targetUserId = admin?.id;
+            targetUserId = admin?.id || null;
         }
 
         if (targetUserId) {
