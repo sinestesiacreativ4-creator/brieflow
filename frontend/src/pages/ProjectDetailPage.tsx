@@ -162,12 +162,11 @@ export default function ProjectDetailPage() {
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Volver
                     </Button>
-                    <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
-                    <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
-                        <span>{project.client?.name}</span>
-                        <span>•</span>
-                        <span>{getProjectTypeLabel(project.type)}</span>
-                        <span>•</span>
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{project.name}</h1>
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 text-sm text-gray-500">
+                        <span className="truncate max-w-[100px] sm:max-w-none">{project.client?.name}</span>
+                        <span className="hidden sm:inline">•</span>
+                        <span className="hidden sm:inline">{getProjectTypeLabel(project.type)}</span>
                         <StatusBadge status={project.status} />
                     </div>
                 </div>
@@ -175,29 +174,29 @@ export default function ProjectDetailPage() {
 
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList>
-                    <TabsTrigger value="workflow">
-                        <Layout className="w-4 h-4 mr-2" />
-                        Workflow
+                <TabsList className="flex-wrap h-auto gap-1 p-1">
+                    <TabsTrigger value="workflow" className="text-xs sm:text-sm px-2 sm:px-4">
+                        <Layout className="w-4 h-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Workflow</span>
                     </TabsTrigger>
-                    <TabsTrigger value="brief">
-                        <FileText className="w-4 h-4 mr-2" />
-                        Brief
+                    <TabsTrigger value="brief" className="text-xs sm:text-sm px-2 sm:px-4">
+                        <FileText className="w-4 h-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Brief</span>
                     </TabsTrigger>
-                    <TabsTrigger value="chat">
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Chat
+                    <TabsTrigger value="chat" className="text-xs sm:text-sm px-2 sm:px-4">
+                        <MessageSquare className="w-4 h-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Chat</span>
                         {project.messages?.length > 0 && (
-                            <span className="ml-2 bg-indigo-100 text-indigo-600 text-xs px-2 py-0.5 rounded-full">
+                            <span className="ml-1 sm:ml-2 bg-indigo-100 text-indigo-600 text-xs px-1.5 sm:px-2 py-0.5 rounded-full">
                                 {project.messages.length}
                             </span>
                         )}
                     </TabsTrigger>
-                    <TabsTrigger value="files">
-                        <Upload className="w-4 h-4 mr-2" />
-                        Archivos
+                    <TabsTrigger value="files" className="text-xs sm:text-sm px-2 sm:px-4">
+                        <Upload className="w-4 h-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Archivos</span>
                         {project.files?.length > 0 && (
-                            <span className="ml-2 bg-indigo-100 text-indigo-600 text-xs px-2 py-0.5 rounded-full">
+                            <span className="ml-1 sm:ml-2 bg-indigo-100 text-indigo-600 text-xs px-1.5 sm:px-2 py-0.5 rounded-full">
                                 {project.files.length}
                             </span>
                         )}
@@ -233,8 +232,8 @@ export default function ProjectDetailPage() {
                                                     onClick={() => !isClient && updateStatus(step.id)}
                                                     disabled={isClient}
                                                     className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 z-10 ${isActive
-                                                            ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30 scale-110'
-                                                            : 'bg-white border-gray-300 text-gray-400 hover:border-blue-400'
+                                                        ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30 scale-110'
+                                                        : 'bg-white border-gray-300 text-gray-400 hover:border-blue-400'
                                                         } ${!isClient && 'cursor-pointer hover:scale-105'}`}
                                                     title={isClient ? 'Solo la agencia puede cambiar el estado' : 'Click para cambiar estado'}
                                                 >
@@ -378,7 +377,7 @@ export default function ProjectDetailPage() {
 
                 {/* Chat Tab */}
                 <TabsContent value="chat">
-                    <Card className="h-[600px] flex flex-col">
+                    <Card className="h-[400px] sm:h-[600px] flex flex-col">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle>Chat del Proyecto</CardTitle>
                             <div className="flex items-center gap-2">
@@ -538,7 +537,7 @@ export default function ProjectDetailPage() {
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <a
-                                                        href={`http://localhost:3001${file.url}`}
+                                                        href={`${window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://brieflow.onrender.com'}${file.url}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                     >

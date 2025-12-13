@@ -121,9 +121,9 @@ export default function ProjectsPage() {
                                 className="pl-10"
                             />
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                             <Select value={statusFilter} onValueChange={(v) => handleFilterChange('status', v)}>
-                                <SelectTrigger className="w-[180px]">
+                                <SelectTrigger className="w-full sm:w-[180px]">
                                     <Filter className="w-4 h-4 mr-2 text-gray-400" />
                                     <SelectValue placeholder="Estado" />
                                 </SelectTrigger>
@@ -136,7 +136,7 @@ export default function ProjectsPage() {
                                 </SelectContent>
                             </Select>
                             <Select value={typeFilter} onValueChange={(v) => handleFilterChange('type', v)}>
-                                <SelectTrigger className="w-[180px]">
+                                <SelectTrigger className="w-full sm:w-[180px]">
                                     <SelectValue placeholder="Tipo" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -191,29 +191,23 @@ export default function ProjectsPage() {
                         >
                             <Card hover className="overflow-hidden">
                                 <CardContent className="p-0">
-                                    <div className="flex items-center justify-between p-6 group">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center group-hover:from-indigo-200 group-hover:to-purple-200 transition-colors">
-                                                <FolderKanban className="w-7 h-7 text-indigo-600" />
+                                    <div className="flex flex-col items-start sm:flex-row sm:items-center justify-between p-4 sm:p-6 group gap-4">
+                                        <div className="flex items-center gap-4 min-w-0 flex-1">
+                                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center group-hover:from-indigo-200 group-hover:to-purple-200 transition-colors flex-shrink-0">
+                                                <FolderKanban className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-600" />
                                             </div>
-                                            <div>
-                                                <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="font-semibold text-gray-900 group-hover:text-indigo-600 transition-colors truncate">
                                                     {project.name}
                                                 </h3>
-                                                <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
-                                                    <span>{project.client?.name}</span>
-                                                    <span className="w-1 h-1 rounded-full bg-gray-300" />
-                                                    <span>{getProjectTypeLabel(project.type)}</span>
-                                                    {project.assignedTo && (
-                                                        <>
-                                                            <span className="w-1 h-1 rounded-full bg-gray-300" />
-                                                            <span>Asignado a: {project.assignedTo.name}</span>
-                                                        </>
-                                                    )}
+                                                <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-sm text-gray-500">
+                                                    <span className="truncate max-w-[120px] sm:max-w-none">{project.client?.name}</span>
+                                                    <span className="w-1 h-1 rounded-full bg-gray-300 hidden sm:block" />
+                                                    <span className="hidden sm:inline">{getProjectTypeLabel(project.type)}</span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center justify-between w-full sm:w-auto gap-3 sm:gap-4">
                                             <StatusBadge status={project.status} />
                                             <div className="hidden md:flex items-center gap-1 text-sm text-gray-400">
                                                 <Clock className="w-4 h-4" />

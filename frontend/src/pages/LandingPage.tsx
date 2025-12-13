@@ -73,8 +73,8 @@ export default function LandingPage() {
                         Nuevo: Sistema de Gestión de Proyectos 2.0
                     </div>
 
-                    <h1 className="text-5xl md:text-7xl font-bold text-gray-900 tracking-tight mb-8 leading-[1.1] max-w-4xl mx-auto animate-fade-in" style={{ animationDelay: '0.1s' }}>
-                        Gestiona tus proyectos creativos <br />
+                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-gray-900 tracking-tight mb-8 leading-[1.1] max-w-4xl mx-auto animate-fade-in px-2" style={{ animationDelay: '0.1s' }}>
+                        Gestiona tus proyectos creativos{' '}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
                             sin el caos de siempre
                         </span>
@@ -95,7 +95,7 @@ export default function LandingPage() {
 
                     </div>
 
-                    <div className="mt-12 flex items-center justify-center gap-8 text-sm text-gray-500 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+                    <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-gray-500 animate-fade-in" style={{ animationDelay: '0.4s' }}>
                         <div className="flex items-center gap-2">
                             <CheckCircle2 className="w-4 h-4 text-green-500" /> No requiere tarjeta
                         </div>
@@ -105,8 +105,8 @@ export default function LandingPage() {
                     </div>
                 </div>
 
-                {/* Dashboard Mockup */}
-                <div className="mt-20 px-4 animate-fade-in" style={{ animationDelay: '0.5s' }}>
+                {/* Dashboard Mockup - Hidden on very small screens */}
+                <div className="mt-20 px-4 animate-fade-in hidden sm:block" style={{ animationDelay: '0.5s' }}>
                     <div className="max-w-5xl mx-auto relative group">
                         <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                         <div className="relative bg-white rounded-2xl border border-gray-200 shadow-2xl overflow-hidden ring-1 ring-black/5">
@@ -125,7 +125,7 @@ export default function LandingPage() {
                             </div>
 
                             {/* App Interface Mockup */}
-                            <div className="flex h-[500px] bg-gray-50">
+                            <div className="flex h-[300px] md:h-[500px] bg-gray-50">
                                 {/* Sidebar */}
                                 <div className="w-64 bg-white border-r border-gray-200 p-4 hidden md:block">
                                     <div className="space-y-6">
@@ -161,7 +161,7 @@ export default function LandingPage() {
                                     </div>
 
                                     {/* Kanban Board Mockup */}
-                                    <div className="grid grid-cols-3 gap-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                                         {[
                                             { title: 'Por Hacer', color: 'bg-gray-100', items: 2 },
                                             { title: 'En Progreso', color: 'bg-blue-50', items: 3 },
@@ -329,7 +329,7 @@ export default function LandingPage() {
                         </p>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4">
                         {/* Freelance Plan */}
                         <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-lg hover:shadow-xl transition-all">
                             <h3 className="text-xl font-semibold text-gray-900 mb-1">Freelance</h3>
@@ -351,7 +351,7 @@ export default function LandingPage() {
                         </div>
 
                         {/* Studio Plan */}
-                        <div className="relative bg-white rounded-3xl p-8 border-2 border-blue-600 shadow-2xl shadow-blue-500/20 scale-105 z-10">
+                        <div className="relative bg-white rounded-3xl p-8 border-2 border-blue-600 shadow-2xl shadow-blue-500/20 md:scale-105 z-10">
                             <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-sm font-semibold shadow-lg">
                                 Más Popular
                             </div>
