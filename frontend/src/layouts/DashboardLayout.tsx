@@ -164,8 +164,19 @@ export default function DashboardLayout() {
 
                         {/* Notifications */}
                         <div className="flex items-center gap-3">
+                            {'Notification' in window && Notification.permission === 'default' && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="hidden sm:flex"
+                                    onClick={() => Notification.requestPermission()}
+                                >
+                                    Activar Notificaciones
+                                </Button>
+                            )}
                             <Button variant="ghost" size="icon" className="relative">
                                 <Bell className="w-5 h-5" />
+                                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white" />
                             </Button>
                         </div>
                     </div>

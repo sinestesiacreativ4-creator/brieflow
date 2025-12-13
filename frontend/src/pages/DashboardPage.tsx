@@ -301,7 +301,7 @@ export default function DashboardPage() {
                                 <Link
                                     key={project.id}
                                     to={`/projects/${project.id}`}
-                                    className="flex items-center justify-between p-5 hover:bg-gray-50 transition-colors group"
+                                    className="flex flex-col sm:flex-row sm:items-center justify-between p-5 hover:bg-gray-50 transition-colors group gap-4"
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
@@ -316,13 +316,13 @@ export default function DashboardPage() {
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex items-center justify-between w-full sm:w-auto gap-4">
                                         <StatusBadge status={project.status} />
                                         <div className="flex items-center gap-1.5 text-sm text-gray-400">
                                             <Clock className="w-4 h-4" />
                                             {formatDate(project.deadline || project.createdAt)}
                                         </div>
-                                        <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-blue-600 transition-colors" />
+                                        <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-blue-600 transition-colors hidden sm:block" />
                                     </div>
                                 </Link>
                             ))}
