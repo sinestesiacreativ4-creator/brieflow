@@ -305,6 +305,100 @@ export default function ClientBriefWizard() {
         return PROJECT_TYPE_CONFIG[type] || PROJECT_TYPE_CONFIG.OTHER;
     };
 
+    // Helper to map dynamic wizard fields to DB schema fields
+    const mapFormDataToBrief = (data: any, type: string) => {
+        const mapped: any = { ...data };
+
+        // Common mappings
+        if (data.budget) mapped.budget = data.budget;
+        if (data.timeline) mapped.timeline = data.timeline;
+        if (data.deliverables) mapped.deliverables = Array.isArray(data.deliverables) ? data.deliverables.join(', ') : data.deliverables;
+        if (data.additionalNotes) mapped.additionalNotes = data.additionalNotes;
+
+        // Type specific mappings
+        switch (type) {
+            case 'BRANDING':
+                if (data.brandName) mapped.projectName = data.brandName;
+
+                // Merge description fields into projectGoals
+                const goalsParts = [];
+                if (data.businessDescription) goalsParts.push(`--- A qué se dedica ---\n${data.businessDescription}`);
+                if (data.mission) goalsParts.push(`--- Misión ---\n${data.mission}`);
+                if (data.vision) goalsParts.push(`--- Visión ---\n${data.vision}`);
+                if (goalsParts.length) mapped.projectGoals = goalsParts.join('\n\n');
+
+                // Merge tone fields
+                const toneParts = [];
+                if (data.brandPersonality) toneParts.push(`Personalidad: ${data.brandPersonality}`);
+                if (data.brandValues) toneParts.push(`Valores: ${data.brandValues}`);
+                if (data.desiredEmotion) toneParts.push(`Emoción deseada: ${data.desiredEmotion}`);
+                if (toneParts.length) mapped.communicationTone = toneParts.join('\n\n');
+
+                // Merge competitors
+                const compParts = [];
+                if (data.competitors) compParts.push(`--- Competencia ---\n${data.competitors}`);
+                if (data.differentiator) compParts.push(`--- Diferenciador ---\n${data.differentiator}`);
+                if (data.brandInspiration) compParts.push(`--- Inspiración ---\n${data.brandInspiration}`);
+                if (compParts.length) mapped.competitors = compParts.join('\n\n');
+                break;
+
+            case 'WEB_DESIGN':
+                // Goals
+                const webGoals = [];
+                if (data.websiteGoal) webGoals.push(`Objetivo Ppal: ${data.websiteGoal}`);
+                if (data.goalDetails) webGoals.push(`Detalles: ${data.goalDetails}`);
+                if (data.currentWebsite) webGoals.push(`Sitio Actual: ${data.currentWebsite}`);
+                if (webGoals.length) mapped.projectGoals = webGoals.join('\n\n');
+
+                // Content & Specs -> Key Message (using as specs container)
+                const specs = [];
+                if (data.websitePages) specs.push(`--- Secciones ---\n${data.websitePages}`);
+                if (data.contentReady) specs.push(`Contenido: ${data.contentReady}`);
+                if (data.specialFeatures) specs.push(`--- Funcionalidades ---\n${data.specialFeatures}`);
+                if (data.integrations) specs.push(`--- Integraciones ---\n${data.integrations}`);
+                if (specs.length) mapped.keyMessage = specs.join('\n\n');
+
+                // Tech specs -> Brand Guidelines (using as tech container)
+                const tech = [];
+                if (data.siteAdmin) tech.push(`Admin: ${data.siteAdmin}`);
+                if (data.platformPreference) tech.push(`Plataforma: ${data.platformPreference}`);
+                if (tech.length) mapped.brandGuidelines = tech.join('\n\n');
+
+                // References
+                const refs = [];
+                if (data.websiteReferences) refs.push(`--- Referencias ---\n${data.websiteReferences}`);
+                if (data.websiteDislikes) refs.push(`--- NO gusta ---\n${data.websiteDislikes}`);
+                if (refs.length) mapped.competitors = refs.join('\n\n');
+                break;
+
+            case 'ADVERTISING_CAMPAIGN':
+                if (data.campaignGoal) mapped.projectGoals = `Objetivo: ${data.campaignGoal}\n\nProducto: ${data.productService || ''}\nDuration: ${data.campaignDuration || ''}`;
+                if (data.targetAudience) mapped.targetAudience = data.targetAudience + (data.audiencePain ? `\n\nPain Point: ${data.audiencePain}` : '');
+                if (data.keyMessage) mapped.keyMessage = data.keyMessage + (data.tagline ? `\n\nTagline: ${data.tagline}` : '') + (data.callToAction ? `\nCTA: ${data.callToAction}` : '');
+                if (data.adChannels) mapped.communicationTone = `Canales: ${data.adChannels}\nMedia Budget: ${data.mediaBudget || ''}`;
+                break;
+
+            // Add basic mappings for others to ensure data is not lost
+            default:
+                // Generic fallback: dump unknown fields into additionalNotes if not mapped
+                const knownFields = ['projectName', 'projectGoals', 'targetAudience', 'budget', 'timeline', 'deliverables', 'additionalNotes'];
+                const extraData: string[] = [];
+                Object.keys(data).forEach(key => {
+                    if (!knownFields.includes(key) && !['files', 'budget', 'timeline', 'deliverables', 'additionalNotes'].includes(key)) {
+                        if (typeof data[key] === 'string') {
+                            extraData.push(`${key}: ${data[key]}`);
+                        }
+                    }
+                });
+                if (extraData.length) {
+                    mapped.projectGoals = (mapped.projectGoals || '') + '\n\n' + extraData.join('\n');
+                }
+                break;
+        }
+
+        return mapped;
+    };
+
     const saveBrief = async () => {
         if (!brief?.id) return;
         setSaving(true);
@@ -314,8 +408,11 @@ export default function ClientBriefWizard() {
             // For now, we'll append file names to additional notes
             const filesNote = files.length > 0 ? `\n\nArchivos adjuntos: ${files.map(f => f.name).join(', ')}` : '';
 
+            // Map wizard data into DB schema
+            const mappedData = mapFormDataToBrief(data, project?.type);
+
             await briefsApi.update(brief.id, {
-                ...data,
+                ...mappedData,
                 deliverables: selectedDeliverables.join(', '),
                 additionalNotes: (data.additionalNotes || '') + filesNote,
             });
@@ -600,8 +697,8 @@ export default function ClientBriefWizard() {
                                                 type="button"
                                                 onClick={() => toggleDeliverable(item)}
                                                 className={`p-3 rounded-xl border text-sm font-medium transition-all text-left ${selectedDeliverables.includes(item)
-                                                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                                        : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                                                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                                                    : 'border-gray-200 hover:border-gray-300 text-gray-700'
                                                     }`}
                                             >
                                                 {selectedDeliverables.includes(item) && (
