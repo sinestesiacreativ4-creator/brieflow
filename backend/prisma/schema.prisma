@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Agency {
+  id           String    @id @default(cuid())
+  name         String
+  subdomain    String    @unique
+  logo         String?
+  primaryColor String    @default("#6366f1")
+  createdAt    DateTime  @default(now())
+  users        User[]
+  clients      Client[]
+  projects     Project[]
+  briefs       Brief[]
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      String    @default("AGENCY_MEMBER")
+  agencyId  String
+  agency    Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  projects  Project[]
+  messages  Message[]
+}
+
+model Client {
+  id        String    @id @default(cuid())
+  email     String
+  password  String?
+  name      String
+  company   String?
+  phone     String?
+  agencyId  String
+  agency    Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  projects  Project[]
+  messages  Message[]
+
+  @@unique([email, agencyId])
+}
+
+model Project {
+  id           String    @id @default(cuid())
+  name         String
+  type         String
+  status       String    @default("BRIEF_PENDING")
+  notionUrl    String?   // New field for Notion integration
+  agencyId     String
+  agency       Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  clientId     String
+  client       Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assignedToId String?
+  assignedTo   User?     @relation(fields: [assignedToId], references: [id])
+  briefId      String?   @unique
+  brief        Brief?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  messages     Message[]
+  files        ProjectFile[]
+}
+
+model Brief {
+  id              String    @id @default(cuid())
+  projectId       String    @unique
+  project         Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  agencyId        String
+  agency          Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  
+  // Brief fields
+  projectName     String?
+  projectGoals    String?
+  targetAudience  String?
+  audienceAge     String?
+  audienceGender  String?
+  audienceLocation String?
+  keyMessage      String?
+  communicationTone String?
+  competitors     String?
+  brandGuidelines String?
+  budget          String?
+  timeline        String?
+  deliverables    String?
+  additionalNotes String?
+  
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  content    String
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  senderId   String?
+  sender     User?    @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  clientId   String?
+  client     Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  senderName String?
+  senderType String   @default("USER") // "USER" or "CLIENT"
+  createdAt  DateTime @default(now())
+}
+
+model ProjectFile {
+  id         String   @id @default(cuid())
+  name       String
+  url        String
+  size       Int
+  mimeType   String
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploadedAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  userId    String
+  agencyId  String
+  projectId String?
+  createdAt DateTime @default(now())
+}

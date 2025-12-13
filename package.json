@@ -1,0 +1,28 @@
+{
+  "name": "briefflow",
+  "version": "1.0.0",
+  "description": "Brief Flow - Plataforma de gestión de briefs para agencias creativas",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "start": "cd backend && npm start",
+    "db:push": "cd backend && npm run db:push",
+    "db:seed": "cd backend && npm run db:seed"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "brief",
+    "agency",
+    "saas",
+    "project-management"
+  ],
+  "author": "",
+  "license": "MIT"
+}
