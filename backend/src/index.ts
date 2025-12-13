@@ -24,12 +24,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: (origin, callback) => {
-            if (!origin) return callback(null, true);
-            if (origin.startsWith('http://localhost:')) return callback(null, true);
-            if (origin === process.env.FRONTEND_URL) return callback(null, true);
-            callback(new Error('Not allowed by CORS'));
-        },
+        origin: "*", // Allow all origins for sockets
         methods: ['GET', 'POST'],
         credentials: true
     }
@@ -38,12 +33,7 @@ const io = new Server(server, {
 // Middleware
 // Middleware
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-        if (origin.startsWith('http://localhost:')) return callback(null, true);
-        if (origin === process.env.FRONTEND_URL) return callback(null, true);
-        callback(new Error('Not allowed by CORS'));
-    },
+    origin: true, // Allow all origins
     credentials: true
 }));
 app.use(express.json());
