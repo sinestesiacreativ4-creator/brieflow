@@ -1,6 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
+import { pushService } from '../services/pushNotification';
 
 const prisma = new PrismaClient();
 
@@ -126,6 +127,13 @@ export function setupSocketHandlers(io: Server) {
                         body: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
                         url: `/projects/${projectId}`,
                         projectId
+                    });
+
+                    // Send Push Notification
+                    pushService.sendNotification(targetUserId, {
+                        title: `Nuevo mensaje de ${socket.user.name}`,
+                        body: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
+                        url: `/projects/${projectId}`
                     });
                 }
 

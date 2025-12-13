@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -32,6 +33,7 @@ export default function DashboardLayout() {
     const { user, agency, logout } = useAuthStore();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const { subscribe, permission } = usePushNotifications();
 
     const handleLogout = () => {
         logout();
@@ -164,14 +166,14 @@ export default function DashboardLayout() {
 
                         {/* Notifications */}
                         <div className="flex items-center gap-3">
-                            {'Notification' in window && Notification.permission === 'default' && (
+                            {permission === 'default' && (
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    className="hidden sm:flex"
-                                    onClick={() => Notification.requestPermission()}
+                                    className="hidden sm:flex bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200"
+                                    onClick={subscribe}
                                 >
-                                    Activar Notificaciones
+                                    ¡Activar Alertas!
                                 </Button>
                             )}
                             <Button variant="ghost" size="icon" className="relative">

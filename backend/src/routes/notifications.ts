@@ -1,77 +1,53 @@
-import { Router, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
-import { AuthRequest } from '../middleware/auth';
+import express from 'express';
+import { prisma } from '../lib/prisma';
+import { authenticateToken } from '../middleware/auth';
+import { pushService } from '../services/pushNotification';
 
-const router = Router();
-const prisma = new PrismaClient();
+const router = express.Router();
 
-// Get notifications
-router.get('/', async (req: AuthRequest, res: Response) => {
+// Get notification history (existing functionality placeholder)
+router.get('/', authenticateToken, async (req: any, res) => {
     try {
-        const { unreadOnly = 'false', limit = '20' } = req.query;
-
-        const where: any = { agencyId: req.user!.agencyId };
-
-        if (unreadOnly === 'true') {
-            where.read = false;
-        }
-
         const notifications = await prisma.notification.findMany({
-            where,
+            where: { userId: req.user.id },
             orderBy: { createdAt: 'desc' },
-            take: parseInt(limit as string)
+            take: 20,
         });
-
-        const unreadCount = await prisma.notification.count({
-            where: { agencyId: req.user!.agencyId, read: false }
-        });
-
-        res.json({
-            notifications,
-            unreadCount
-        });
+        res.json(notifications);
     } catch (error) {
-        console.error('Get notifications error:', error);
-        res.status(500).json({ error: 'Error al obtener notificaciones' });
+        res.status(500).json({ error: 'Error fetching notifications' });
     }
 });
 
-// Mark notification as read
-router.patch('/:id/read', async (req: AuthRequest, res: Response) => {
+// Mark as read
+router.put('/:id/read', authenticateToken, async (req: any, res) => {
     try {
-        const notification = await prisma.notification.findFirst({
-            where: { id: req.params.id, agencyId: req.user!.agencyId }
-        });
-
-        if (!notification) {
-            res.status(404).json({ error: 'Notificación no encontrada' });
-            return;
-        }
-
         await prisma.notification.update({
             where: { id: req.params.id },
-            data: { read: true }
+            data: { read: true },
         });
-
-        res.json({ message: 'Notificación marcada como leída' });
+        res.json({ success: true });
     } catch (error) {
-        console.error('Mark notification read error:', error);
-        res.status(500).json({ error: 'Error al actualizar notificación' });
+        res.status(500).json({ error: 'Error marking notification as read' });
     }
 });
 
-// Mark all as read
-router.post('/read-all', async (req: AuthRequest, res: Response) => {
-    try {
-        await prisma.notification.updateMany({
-            where: { agencyId: req.user!.agencyId, read: false },
-            data: { read: true }
-        });
+// --- PUSH NOTIFICATION ROUTES ---
 
-        res.json({ message: 'Todas las notificaciones marcadas como leídas' });
+// Get VAPID Public Key
+router.get('/vapid-key', (req, res) => {
+    res.json({ publicKey: pushService.getPublicKey() });
+});
+
+// Subscribe to Push Notifications
+router.post('/subscribe', authenticateToken, async (req: any, res) => {
+    try {
+        const subscription = req.body;
+        await pushService.saveSubscription(req.user.id, subscription);
+        res.status(201).json({ success: true });
     } catch (error) {
-        console.error('Mark all read error:', error);
-        res.status(500).json({ error: 'Error al actualizar notificaciones' });
+        console.error('Subscription error:', error);
+        res.status(500).json({ error: 'Error saving subscription' });
     }
 });
 

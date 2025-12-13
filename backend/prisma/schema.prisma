@@ -24,16 +24,31 @@ model Agency {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  password  String
-  name      String
-  role      String    @default("AGENCY_MEMBER")
-  agencyId  String
-  agency    Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  createdAt DateTime  @default(now())
-  projects  Project[]
-  messages  Message[]
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  role          String    @default("AGENCY_MEMBER") // Keeping original type and default for role
+  agencyId      String?   // Changed to optional as per snippet
+  agency        Agency?   @relation(fields: [agencyId], references: [id]) // Changed to optional and onDelete removed as per snippet
+  createdAt     DateTime  @default(now())
+  projects      Project[] // Projects assigned to this user (comment added from snippet)
+  messages      Message[]
+  notifications Notification[] // Added from snippet
+  pushSubscriptions PushSubscription[] // Added from snippet
+  updatedAt     DateTime  @updatedAt // Added from snippet
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String
+  p256dh    String
+  auth      String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Client {
