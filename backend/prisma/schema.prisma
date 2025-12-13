@@ -33,7 +33,7 @@ model User {
   agency        Agency?   @relation(fields: [agencyId], references: [id])
   projects      Project[]
   messages      Message[]
-  // notifications Notification[] <-- Relación removida TEMPORALMENTE para evitar error de FK en datos antiguos
+  notifications Notification[]
   pushSubscriptions PushSubscription[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
@@ -147,7 +147,7 @@ model Notification {
   message   String
   read      Boolean  @default(false)
   userId    String
-  // user      User     @relation(fields: [userId], references: [id], onDelete: Cascade) <-- Relación removida TEMPORALMENTE
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   agencyId  String
   projectId String?
   createdAt DateTime @default(now())

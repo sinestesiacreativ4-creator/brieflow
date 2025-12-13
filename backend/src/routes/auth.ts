@@ -149,6 +149,11 @@ router.post('/login', async (req, res: Response) => {
             { expiresIn: '24h' }
         );
 
+        if (!user.agency) {
+            res.status(500).json({ error: 'Error de integridad de datos: Usuario sin agencia' });
+            return;
+        }
+
         res.json({
             token,
             user: {
@@ -211,6 +216,11 @@ router.post('/client/login', async (req, res: Response) => {
             process.env.JWT_SECRET || 'secret',
             { expiresIn: '24h' }
         );
+
+        if (!client.agency) {
+            res.status(500).json({ error: 'Error de integridad: Cliente sin agencia asociada' });
+            return;
+        }
 
         res.json({
             token,
