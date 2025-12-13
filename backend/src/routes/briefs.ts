@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { AuthRequest } from '../middleware/auth';
+import { pushService } from '../services/pushNotification';
 import { z } from 'zod';
 
 const router = Router();
@@ -136,18 +137,37 @@ router.post('/:id/submit', async (req: AuthRequest, res: Response) => {
                 where: { id: brief.projectId },
                 data: { status: 'BRIEF_IN_REVIEW' }
             }),
-            // Create notification for agency
-            prisma.notification.create({
+        ]);
+
+        // Find agency user to notify (Project Assignee or Agency Admin)
+        let targetUserId = brief.project.assignedToId;
+        if (!targetUserId) {
+            const admin = await prisma.user.findFirst({
+                where: { agencyId: brief.agencyId, role: { in: ['AGENCY_OWNER', 'AGENCY_ADMIN'] } }
+            });
+            targetUserId = admin?.id;
+        }
+
+        if (targetUserId) {
+            // Create notification in DB for the agency member
+            await prisma.notification.create({
                 data: {
                     type: 'BRIEF_COMPLETED',
-                    title: 'Brief completado',
-                    message: `${brief.project.client.name} ha completado el brief para "${brief.project.name}"`,
-                    userId: req.user!.id,
-                    agencyId: req.user!.agencyId,
+                    title: 'Brief Recibido 📋',
+                    message: `${brief.project.client.name} ha enviado el brief para "${brief.project.name}".\n\nTipo: ${brief.project.type}\nPresupuesto: ${brief.budget || 'N/A'}\nEntrega: ${brief.timeline || 'N/A'}`,
+                    userId: targetUserId,
+                    agencyId: brief.agencyId,
                     projectId: brief.projectId,
                 }
-            })
-        ]);
+            });
+
+            // Send Push Notification
+            await pushService.sendNotification(targetUserId, {
+                title: `Nuevo Brief: ${brief.project.name}`,
+                body: `Cliente: ${brief.project.client.name}\n💰 ${brief.budget || 'Sin presupuesto'}\n📅 ${brief.timeline || 'Sin fecha'}\n\n¡Toca para ver todos los detalles!`,
+                url: `/projects/${brief.projectId}`
+            });
+        }
 
         res.json({
             message: 'Brief enviado exitosamente',
