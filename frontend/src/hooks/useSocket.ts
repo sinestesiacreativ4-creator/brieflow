@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 
-const SOCKET_URL = (import.meta as any).env?.VITE_API_URL?.replace('/api', '') || 'http://localhost:3001';
+const SOCKET_URL = import.meta.env.MODE === 'production'
+    ? 'https://brieflow.onrender.com'
+    : (import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3001');
 
 interface Message {
     id: string;
