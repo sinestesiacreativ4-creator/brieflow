@@ -5,21 +5,56 @@ import { pushService } from '../services/pushNotification';
 
 const router = express.Router();
 
-// Get notification history (existing functionality placeholder)
+// Get all notifications with unread count
 router.get('/', authenticateToken, async (req: any, res) => {
     try {
         const notifications = await prisma.notification.findMany({
             where: { userId: req.user.id },
             orderBy: { createdAt: 'desc' },
-            take: 20,
+            take: 50,
         });
-        res.json(notifications);
+
+        const unreadCount = await prisma.notification.count({
+            where: { userId: req.user.id, read: false }
+        });
+
+        res.json({
+            notifications,
+            unreadCount,
+            total: notifications.length
+        });
     } catch (error) {
+        console.error('Fetch notifications error:', error);
         res.status(500).json({ error: 'Error fetching notifications' });
     }
 });
 
-// Mark as read
+// Get unread count only
+router.get('/unread-count', authenticateToken, async (req: any, res) => {
+    try {
+        const unreadCount = await prisma.notification.count({
+            where: { userId: req.user.id, read: false }
+        });
+        res.json({ unreadCount });
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching unread count' });
+    }
+});
+
+// Mark single notification as read (PATCH)
+router.patch('/:id/read', authenticateToken, async (req: any, res) => {
+    try {
+        await prisma.notification.update({
+            where: { id: req.params.id },
+            data: { read: true },
+        });
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Error marking notification as read' });
+    }
+});
+
+// Mark single notification as read (PUT - legacy support)
 router.put('/:id/read', authenticateToken, async (req: any, res) => {
     try {
         await prisma.notification.update({
@@ -29,6 +64,20 @@ router.put('/:id/read', authenticateToken, async (req: any, res) => {
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: 'Error marking notification as read' });
+    }
+});
+
+// Mark ALL notifications as read
+router.post('/mark-all-read', authenticateToken, async (req: any, res) => {
+    try {
+        const result = await prisma.notification.updateMany({
+            where: { userId: req.user.id, read: false },
+            data: { read: true },
+        });
+        res.json({ success: true, markedCount: result.count });
+    } catch (error) {
+        console.error('Mark all read error:', error);
+        res.status(500).json({ error: 'Error marking all as read' });
     }
 });
 

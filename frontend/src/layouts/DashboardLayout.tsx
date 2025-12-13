@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { NotificationBell } from '@/components/NotificationBell';
 
 const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -186,10 +187,7 @@ export default function DashboardLayout() {
                                     🔔 Test
                                 </Button>
                             )}
-                            <Button variant="ghost" size="icon" className="relative">
-                                <Bell className="w-5 h-5" />
-                                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white" />
-                            </Button>
+                            <NotificationBell />
                         </div>
                     </div>
                 </header>
