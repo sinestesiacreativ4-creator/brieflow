@@ -36,7 +36,7 @@ model User {
   messages      Message[]
   notifications Notification[] // Added from snippet
   pushSubscriptions PushSubscription[] // Added from snippet
-  updatedAt     DateTime  @updatedAt // Added from snippet
+  updatedAt     DateTime  @default(now()) @updatedAt
 }
 
 model PushSubscription {
