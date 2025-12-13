@@ -28,6 +28,7 @@ import {
 import { Layout } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { getWorkflowForType } from '@/lib/workflow';
+import jsPDF from 'jspdf';
 
 export default function ProjectDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -138,6 +139,83 @@ export default function ProjectDetailPage() {
 
     const workflowSteps = project ? getWorkflowForType(project.type) : [];
     const currentStepIndex = project ? workflowSteps.findIndex(s => s.id === project.status) : 0;
+
+    // PDF Export Function
+    const downloadBriefAsPDF = () => {
+        if (!project?.brief) return;
+
+        const doc = new jsPDF();
+        const brief = project.brief;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        let y = 20;
+        const margin = 20;
+        const lineHeight = 7;
+        const maxWidth = pageWidth - margin * 2;
+
+        // Helper to add text with word wrap
+        const addText = (text: string, isBold = false) => {
+            if (isBold) {
+                doc.setFont('helvetica', 'bold');
+            } else {
+                doc.setFont('helvetica', 'normal');
+            }
+            const lines = doc.splitTextToSize(text, maxWidth);
+            lines.forEach((line: string) => {
+                if (y > 270) {
+                    doc.addPage();
+                    y = 20;
+                }
+                doc.text(line, margin, y);
+                y += lineHeight;
+            });
+        };
+
+        // Title
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Brief: ${project.name}`, margin, y);
+        y += 12;
+
+        // Metadata
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Cliente: ${project.client?.name || 'N/A'}`, margin, y);
+        y += 6;
+        doc.text(`Tipo: ${getProjectTypeLabel(project.type)}`, margin, y);
+        y += 6;
+        doc.text(`Fecha: ${formatDate(brief.completedAt || new Date())}`, margin, y);
+        y += 12;
+
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(11);
+
+        // Brief Fields
+        const fields = [
+            { label: 'Objetivos del Proyecto', value: brief.projectGoals },
+            { label: 'Público Objetivo', value: brief.targetAudience },
+            { label: 'Mensaje Clave', value: brief.keyMessage },
+            { label: 'Tono de Comunicación', value: brief.communicationTone },
+            { label: 'Competidores / Referencias', value: brief.competitors },
+            { label: 'Lineamientos de Marca', value: brief.brandGuidelines },
+            { label: 'Presupuesto', value: brief.budget },
+            { label: 'Timeline', value: brief.timeline },
+            { label: 'Entregables', value: brief.deliverables },
+            { label: 'Notas Adicionales', value: brief.additionalNotes },
+        ];
+
+        fields.forEach(({ label, value }) => {
+            if (value) {
+                y += 4;
+                addText(label, true);
+                addText(value, false);
+                y += 4;
+            }
+        });
+
+        // Save
+        doc.save(`Brief-${project.name.replace(/\s+/g, '_')}.pdf`);
+    };
 
     if (loading) {
         return (
@@ -290,6 +368,12 @@ export default function ProjectDetailPage() {
                                         Aprobar Brief
                                     </Button>
                                 </div>
+                            )}
+                            {!isClient && briefCompleted && (
+                                <Button variant="outline" onClick={downloadBriefAsPDF} className="ml-2">
+                                    <Download className="w-4 h-4 mr-2" />
+                                    Descargar PDF
+                                </Button>
                             )}
                         </CardHeader>
                         <CardContent>
