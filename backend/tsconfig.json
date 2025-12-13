@@ -1,24 +1,22 @@
 {
     "compilerOptions": {
-        "target": "ES2022",
-        "module": "ESNext",
-        "moduleResolution": "bundler",
+        "target": "ES2020",
+        "module": "CommonJS",
+        "moduleResolution": "node",
         "lib": [
-            "ES2022"
+            "ES2020"
         ],
         "outDir": "./dist",
-        "rootDir": ".",
-        "strict": false,
+        "rootDir": "./src",
+        "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
-        "allowImportingTsExtensions": true,
-        "noEmit": true
+        "noEmit": false
     },
     "include": [
-        "src/**/*",
-        "prisma/**/*"
+        "src/**/*"
     ],
     "exclude": [
         "node_modules",
