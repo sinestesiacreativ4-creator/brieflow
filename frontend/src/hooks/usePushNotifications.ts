@@ -75,8 +75,17 @@ export function usePushNotifications() {
         }
     };
 
+    const sendTestNotification = async () => {
+        try {
+            await api.post('/notifications/test');
+        } catch (error) {
+            console.error('Failed to send test notification:', error);
+        }
+    };
+
     return {
         subscribe,
+        sendTestNotification,
         permission,
         isSubscribed: !!subscription
     };

@@ -33,7 +33,7 @@ export default function DashboardLayout() {
     const { user, agency, logout } = useAuthStore();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
-    const { subscribe, permission } = usePushNotifications();
+    const { subscribe, permission, sendTestNotification } = usePushNotifications();
 
     const handleLogout = () => {
         logout();
@@ -174,6 +174,16 @@ export default function DashboardLayout() {
                                     onClick={subscribe}
                                 >
                                     ¡Activar Alertas!
+                                </Button>
+                            )}
+                            {permission === 'granted' && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={sendTestNotification}
+                                    className="hidden sm:flex text-gray-500 hover:text-gray-900"
+                                >
+                                    🔔 Test
                                 </Button>
                             )}
                             <Button variant="ghost" size="icon" className="relative">

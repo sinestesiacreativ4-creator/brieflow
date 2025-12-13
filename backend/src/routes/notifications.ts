@@ -51,4 +51,19 @@ router.post('/subscribe', authenticateToken, async (req: any, res) => {
     }
 });
 
+// Test Push Notification (Self)
+router.post('/test', authenticateToken, async (req: any, res) => {
+    try {
+        await pushService.sendNotification(req.user.id, {
+            title: 'Prueba de Notificación 🔔',
+            body: '¡El sistema de notificaciones funciona correctamente! 🚀',
+            url: '/dashboard'
+        });
+        res.json({ success: true, message: 'Notificación enviada' });
+    } catch (error) {
+        console.error('Test notification error:', error);
+        res.status(500).json({ error: 'Error enviando prueba' });
+    }
+});
+
 export default router;
