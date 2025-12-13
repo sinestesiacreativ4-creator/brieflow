@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
+import { useAuthStore } from '@/lib/auth';
 
 const VAPID_PUBLIC_KEY = 'BCYxdq1SfQ80HIzkKNBPjRdy3eomYuskIuOGVKVLIXRmzGlnBH921b5vBAHndKlxbXb6buHO0BdCZFOmpA8g_W4';
 
@@ -19,6 +20,7 @@ function urlBase64ToUint8Array(base64String: string) {
 }
 
 export function usePushNotifications() {
+    const { user } = useAuthStore();
     const [subscription, setSubscription] = useState<PushSubscription | null>(null);
     const [permission, setPermission] = useState(Notification.permission);
 
@@ -76,10 +78,17 @@ export function usePushNotifications() {
     };
 
     const sendTestNotification = async () => {
+        if (!user?.id) {
+            alert('Error: Usuario no identificado');
+            return;
+        }
         try {
-            await api.post('/notifications/test');
-        } catch (error) {
+            console.log('Enviando test directo para:', user.id);
+            await api.post('/test-push-direct', { userId: user.id });
+            alert('Solicitud enviada. Espera la notificación...');
+        } catch (error: any) {
             console.error('Failed to send test notification:', error);
+            alert(`Error al probar: ${error.response?.status} ${error.response?.statusText || ''}`);
         }
     };
 

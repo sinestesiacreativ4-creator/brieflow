@@ -17,6 +17,7 @@ import notificationRoutes from './routes/notifications';
 import uploadRoutes from './routes/upload';
 import { setupSocketHandlers } from './socket/handlers';
 import { authenticateToken } from './middleware/auth';
+import { pushService } from './services/pushNotification';
 
 dotenv.config();
 
@@ -58,6 +59,25 @@ app.use('/api/upload', authenticateToken, uploadRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 console.log('✅ Notification routes loaded (V2)');
+
+// Emergency Direct Test Route
+app.post('/api/test-push-direct', async (req: any, res) => {
+    try {
+        const { userId } = req.body;
+        console.log('🚨 Direct Push Test requested for:', userId);
+
+        await pushService.sendNotification(userId, {
+            title: 'Test Directo Exitoso 🚀',
+            body: '¡El sistema funciona! El problema estaba en las rutas.',
+            url: '/dashboard'
+        });
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Direct push error:', error);
+        res.status(500).json({ error: 'Fallo al enviar push directo' });
+    }
+});
 
 // Setup socket handlers
 setupSocketHandlers(io);
