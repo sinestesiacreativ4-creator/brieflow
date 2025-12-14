@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/lib/auth';
-import { authApi } from '@/lib/api';
 import { Zap, Loader2, Building2, User } from 'lucide-react';
 
 export default function LoginPage() {
     const navigate = useNavigate();
-    const { setAuth } = useAuthStore();
+    const { login } = useAuthStore();
     const [userType, setUserType] = useState<'agency' | 'client'>('agency');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -19,17 +18,16 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const response = await authApi.login(email, password);
-            const { token, user, agency } = response.data;
-            setAuth(token, user, agency);
+            const isClient = userType === 'client';
+            await login(email, password, isClient);
 
-            if (user.role === 'CLIENT') {
+            if (isClient) {
                 navigate('/client/dashboard');
             } else {
                 navigate('/dashboard');
             }
         } catch (err: any) {
-            setError(err.response?.data?.error || 'Error de autenticación');
+            setError(err.message || 'Error de autenticación');
         } finally {
             setLoading(false);
         }
