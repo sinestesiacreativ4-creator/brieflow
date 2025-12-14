@@ -168,7 +168,8 @@ export function setupSocketHandlers(io: Server) {
             try {
                 const { projectId, status } = data;
                 const project = await prisma.project.findFirst({
-                    where: { id: projectId, agencyId: socket.user?.agencyId }
+                    where: { id: projectId, agencyId: socket.user?.agencyId },
+                    include: { client: true, assignedTo: true }
                 });
 
                 if (!project) return;
@@ -184,17 +185,40 @@ export function setupSocketHandlers(io: Server) {
                     updatedBy: socket.user?.name
                 });
 
-                // Notify status change
+                // Create notification in DB
                 await prisma.notification.create({
                     data: {
                         type: 'STATUS_CHANGE',
-                        title: 'Status Actualizado',
-                        message: `Estado cambiado a ${status}`,
+                        title: 'Estado Actualizado',
+                        message: `El proyecto "${project.name}" cambió a: ${status}`,
                         userId: socket.user?.id!,
                         agencyId: socket.user?.agencyId!,
                         projectId
                     }
                 });
+
+                // Send Push to assigned user if exists and not the sender
+                if (project.assignedToId && project.assignedToId !== socket.user?.id) {
+                    await pushService.sendNotification(project.assignedToId, {
+                        title: `📊 Estado Actualizado`,
+                        body: `"${project.name}" ahora está en: ${status}`,
+                        url: `/projects/${projectId}`,
+                        tag: `status-${projectId}`
+                    });
+                }
+
+                // Send Push to client if they have an account
+                const clientUser = await prisma.user.findFirst({
+                    where: { email: project.client.email }
+                });
+                if (clientUser && clientUser.id !== socket.user?.id) {
+                    await pushService.sendNotification(clientUser.id, {
+                        title: `📊 Tu proyecto se actualizó`,
+                        body: `"${project.name}" ahora está en: ${status}`,
+                        url: `/projects/${projectId}`,
+                        tag: `status-${projectId}`
+                    });
+                }
 
             } catch (error) {
                 console.error('Update status error:', error);

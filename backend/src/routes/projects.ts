@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { AuthRequest } from '../middleware/auth';
 import { z } from 'zod';
 import { createNotionProject } from '../services/notion';
+import { pushService } from '../services/pushNotification';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -192,6 +193,24 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
             return newProject;
         });
+
+        // Send Push Notification to client if they have an account
+        const clientUser = await prisma.user.findFirst({
+            where: { email: client.email }
+        });
+        if (clientUser) {
+            await pushService.sendNotification(clientUser.id, {
+                title: '🆕 Nuevo Proyecto Asignado',
+                body: `"${project.name}" - Por favor completa el brief`,
+                url: `/brief/${project.id}`
+            });
+        }
+
+        // Emit socket event
+        const io = req.app.get('io');
+        if (io) {
+            io.to(`agency:${req.user!.agencyId}`).emit('new-project', project);
+        }
 
         res.status(201).json(project);
     } catch (error) {

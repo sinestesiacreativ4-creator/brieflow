@@ -203,17 +203,39 @@ router.post('/:id/approve', async (req: AuthRequest, res: Response) => {
             data: { status: 'BRIEF_APPROVED' }
         });
 
-        // Notify client
+        // Notify client in DB
         await prisma.notification.create({
             data: {
                 type: 'BRIEF_APPROVED',
-                title: 'Brief aprobado',
+                title: 'Brief aprobado ✅',
                 message: `Tu brief para "${brief.project.name}" ha sido aprobado. El proyecto está ahora en producción.`,
                 userId: brief.project.client.id,
                 agencyId: req.user!.agencyId,
                 projectId: brief.projectId,
             }
         });
+
+        // Send Push to client if they have a user account
+        const clientUser = await prisma.user.findFirst({
+            where: { email: brief.project.client.email }
+        });
+        if (clientUser) {
+            await pushService.sendNotification(clientUser.id, {
+                title: '✅ Brief Aprobado',
+                body: `"${brief.project.name}" ha sido aprobado. ¡El proyecto está en producción!`,
+                url: `/projects/${brief.projectId}`
+            });
+        }
+
+        // Emit socket event for real-time update
+        const io = req.app.get('io');
+        if (io) {
+            io.to(`project:${brief.projectId}`).emit('project-updated', {
+                projectId: brief.projectId,
+                status: 'BRIEF_APPROVED',
+                updatedBy: req.user!.name
+            });
+        }
 
         res.json({ message: 'Brief aprobado exitosamente' });
     } catch (error) {
@@ -255,7 +277,7 @@ router.post('/:id/request-changes', async (req: AuthRequest, res: Response) => {
             prisma.notification.create({
                 data: {
                     type: 'CHANGES_REQUESTED',
-                    title: 'Cambios solicitados',
+                    title: 'Cambios solicitados ⚠️',
                     message: message || `Se han solicitado cambios en el brief para "${brief.project.name}"`,
                     userId: brief.project.client.id,
                     agencyId: req.user!.agencyId,
@@ -263,6 +285,34 @@ router.post('/:id/request-changes', async (req: AuthRequest, res: Response) => {
                 }
             })
         ]);
+
+        // Send Push to client
+        const clientUser = await prisma.user.findFirst({
+            where: { email: brief.project.client.email }
+        });
+        if (clientUser) {
+            await pushService.sendNotification(clientUser.id, {
+                title: '⚠️ Se solicitan cambios',
+                body: message || `Revisa el brief de "${brief.project.name}"`,
+                url: `/brief/${brief.projectId}`
+            });
+        }
+
+        // Emit socket event for real-time
+        const io = req.app.get('io');
+        if (io) {
+            io.to(`project:${brief.projectId}`).emit('project-updated', {
+                projectId: brief.projectId,
+                status: 'BRIEF_PENDING',
+                updatedBy: req.user!.name
+            });
+            io.to(`project:${brief.projectId}`).emit('notification', {
+                type: 'CHANGES_REQUESTED',
+                title: 'Cambios solicitados',
+                message: message || `Se solicitan cambios en el brief`,
+                projectId: brief.projectId
+            });
+        }
 
         res.json({ message: 'Se han solicitado cambios en el brief' });
     } catch (error) {
