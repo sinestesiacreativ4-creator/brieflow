@@ -10,11 +10,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
     Building,
-    Palette,
     CreditCard,
     Bell,
     CheckCircle2,
 } from 'lucide-react';
+import { NotificationSettings } from '@/components/NotificationSettings';
 
 const settingsSchema = z.object({
     name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -242,40 +242,46 @@ export default function SettingsPage() {
 
                 {/* Notifications Tab */}
                 <TabsContent value="notifications">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Preferencias de Notificaciones</CardTitle>
-                            <CardDescription>
-                                Configura cómo y cuándo quieres recibir notificaciones
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-6">
-                                {[
-                                    { title: 'Brief completado', description: 'Cuando un cliente completa un brief', enabled: true },
-                                    { title: 'Nuevo mensaje', description: 'Cuando recibes un mensaje en el chat', enabled: true },
-                                    { title: 'Archivo subido', description: 'Cuando se sube un nuevo archivo a un proyecto', enabled: false },
-                                    { title: 'Cambio de estado', description: 'Cuando un proyecto cambia de estado', enabled: true },
-                                    { title: 'Recordatorios', description: 'Recordatorios de proyectos pendientes', enabled: false },
-                                ].map((notification, i) => (
-                                    <div key={i} className="flex items-center justify-between">
-                                        <div>
-                                            <p className="font-medium text-gray-900">{notification.title}</p>
-                                            <p className="text-sm text-gray-500">{notification.description}</p>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Push Notifications Settings */}
+                        <NotificationSettings />
+
+                        {/* Email/In-App Notification Preferences */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Preferencias de Notificaciones</CardTitle>
+                                <CardDescription>
+                                    Configura qué eventos quieres recibir
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-6">
+                                    {[
+                                        { title: 'Brief completado', description: 'Cuando un cliente completa un brief', enabled: true },
+                                        { title: 'Nuevo mensaje', description: 'Cuando recibes un mensaje en el chat', enabled: true },
+                                        { title: 'Archivo subido', description: 'Cuando se sube un nuevo archivo a un proyecto', enabled: false },
+                                        { title: 'Cambio de estado', description: 'Cuando un proyecto cambia de estado', enabled: true },
+                                        { title: 'Recordatorios', description: 'Recordatorios de proyectos pendientes', enabled: false },
+                                    ].map((notification, i) => (
+                                        <div key={i} className="flex items-center justify-between">
+                                            <div>
+                                                <p className="font-medium text-gray-900">{notification.title}</p>
+                                                <p className="text-sm text-gray-500">{notification.description}</p>
+                                            </div>
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    defaultChecked={notification.enabled}
+                                                    className="sr-only peer"
+                                                />
+                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                            </label>
                                         </div>
-                                        <label className="relative inline-flex items-center cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                defaultChecked={notification.enabled}
-                                                className="sr-only peer"
-                                            />
-                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-                                        </label>
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </TabsContent>
 
 
