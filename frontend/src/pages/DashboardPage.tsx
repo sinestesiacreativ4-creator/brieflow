@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { dashboardApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/badge';
 import { formatDate, getProjectTypeLabel } from '@/lib/utils';
 import {
@@ -14,6 +12,9 @@ import {
     Plus,
     ArrowRight,
     Clock,
+    TrendingUp,
+    Sparkles,
+    Zap,
 } from 'lucide-react';
 
 interface Metrics {
@@ -48,14 +49,15 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="space-y-8 animate-pulse">
-                <div className="h-8 bg-gray-200 rounded w-1/3" />
+            <div className="space-y-8">
+                {/* Loading skeleton */}
+                <div className="h-10 bg-white/5 rounded-lg w-1/3 animate-pulse" />
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                     {[...Array(4)].map((_, i) => (
-                        <div key={i} className="h-32 bg-gray-200 rounded-2xl" />
+                        <div key={i} className="h-36 bg-white/5 rounded-2xl animate-pulse" />
                     ))}
                 </div>
-                <div className="h-64 bg-gray-200 rounded-2xl" />
+                <div className="h-80 bg-white/5 rounded-2xl animate-pulse" />
             </div>
         );
     }
@@ -66,25 +68,25 @@ export default function DashboardPage() {
                 title: 'Proyectos Activos',
                 value: metrics?.activeProjects || 0,
                 icon: FolderKanban,
-                bgColor: 'bg-blue-50',
-                iconBg: 'bg-blue-500',
-                iconColor: 'text-white',
+                gradient: 'from-cyan-500/20 to-cyan-500/5',
+                iconColor: 'text-cyan-400',
+                borderColor: 'border-cyan-500/20',
             },
             {
                 title: 'Briefs Pendientes',
                 value: metrics?.pendingBriefs || 0,
                 icon: FileText,
-                bgColor: 'bg-amber-50',
-                iconBg: 'bg-amber-500',
-                iconColor: 'text-white',
+                gradient: 'from-amber-500/20 to-amber-500/5',
+                iconColor: 'text-amber-400',
+                borderColor: 'border-amber-500/20',
             },
             {
                 title: 'Completados',
                 value: metrics?.completedProjects || 0,
                 icon: CheckCircle2,
-                bgColor: 'bg-green-50',
-                iconBg: 'bg-green-500',
-                iconColor: 'text-white',
+                gradient: 'from-emerald-500/20 to-emerald-500/5',
+                iconColor: 'text-emerald-400',
+                borderColor: 'border-emerald-500/20',
             },
         ]
         : [
@@ -92,141 +94,154 @@ export default function DashboardPage() {
                 title: 'Proyectos Activos',
                 value: metrics?.activeProjects || 0,
                 icon: FolderKanban,
-                bgColor: 'bg-blue-50',
-                iconBg: 'bg-blue-500',
-                iconColor: 'text-white',
+                gradient: 'from-cyan-500/20 to-cyan-500/5',
+                iconColor: 'text-cyan-400',
+                borderColor: 'border-cyan-500/20',
             },
             {
                 title: 'Briefs Pendientes',
                 value: metrics?.pendingBriefs || 0,
                 icon: FileText,
-                bgColor: 'bg-amber-50',
-                iconBg: 'bg-amber-500',
-                iconColor: 'text-white',
+                gradient: 'from-amber-500/20 to-amber-500/5',
+                iconColor: 'text-amber-400',
+                borderColor: 'border-amber-500/20',
             },
             {
                 title: 'Clientes Totales',
                 value: metrics?.totalClients || 0,
                 icon: Users,
-                bgColor: 'bg-purple-50',
-                iconBg: 'bg-purple-500',
-                iconColor: 'text-white',
+                gradient: 'from-purple-500/20 to-purple-500/5',
+                iconColor: 'text-purple-400',
+                borderColor: 'border-purple-500/20',
             },
             {
                 title: 'Completados este mes',
                 value: metrics?.completedThisMonth || 0,
-                icon: CheckCircle2,
-                bgColor: 'bg-green-50',
-                iconBg: 'bg-green-500',
-                iconColor: 'text-white',
+                icon: TrendingUp,
+                gradient: 'from-emerald-500/20 to-emerald-500/5',
+                iconColor: 'text-emerald-400',
+                borderColor: 'border-emerald-500/20',
             },
         ];
 
-    // Customize dashboard for clients
+    // Client Dashboard
     if (metrics?.isClient) {
         return (
             <div className="space-y-8">
                 {/* Client Welcome Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-3xl p-8 text-white shadow-xl shadow-blue-500/20">
-                    <h1 className="text-3xl font-bold mb-2">
-                        ¡Hola, {user?.name?.split(' ')[0]}! 👋
-                    </h1>
-                    <p className="text-blue-100 text-lg">
-                        Aquí tienes un resumen de la actividad de tu agencia
-                    </p>
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-white/10 p-8">
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl" />
+                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl" />
+                    </div>
+                    <div className="relative">
+                        <div className="flex items-center gap-3 mb-2">
+                            <span className="text-4xl">👋</span>
+                            <h1 className="text-3xl font-bold text-white">
+                                Hola, <span className="text-gradient-gold">{user?.name?.split(' ')[0]}</span>
+                            </h1>
+                        </div>
+                        <p className="text-white/60 text-lg">
+                            Aquí tienes un resumen de tus proyectos
+                        </p>
+                    </div>
                 </div>
 
-                {/* Stats for Client */}
+                {/* Stats */}
                 <div className="grid gap-6 md:grid-cols-3">
                     {statCards.map((stat, index) => (
-                        <Card key={index} hover>
-                            <CardContent className="p-6">
-                                <div className="flex items-center gap-4">
-                                    <div className={`p-3 rounded-xl ${stat.iconBg}`}>
-                                        <stat.icon className={`w-6 h-6 ${stat.iconColor}`} />
-                                    </div>
-                                    <div>
-                                        <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-                                        <p className="text-sm text-gray-500">{stat.title}</p>
-                                    </div>
+                        <div
+                            key={index}
+                            className={`card-luxury p-6 border ${stat.borderColor} animate-fade-in`}
+                            style={{ animationDelay: `${index * 100}ms` }}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} border ${stat.borderColor}`}>
+                                    <stat.icon className={`w-6 h-6 ${stat.iconColor}`} />
                                 </div>
-                            </CardContent>
-                        </Card>
+                                <div>
+                                    <p className="text-4xl font-bold text-white">{stat.value}</p>
+                                    <p className="text-sm text-white/50 mt-1">{stat.title}</p>
+                                </div>
+                            </div>
+                        </div>
                     ))}
                 </div>
 
-                {/* Action Required Section */}
+                {/* Pending Briefs Alert */}
                 {metrics?.pendingBriefs > 0 && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
-                                <FileText className="w-6 h-6 text-amber-600" />
+                    <div className="card-luxury p-6 border border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-transparent animate-fade-in">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div className="flex items-center gap-4">
+                                <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
+                                    <Zap className="w-7 h-7 text-amber-400" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-white text-lg">Tienes briefs pendientes</h3>
+                                    <p className="text-amber-400/70 text-sm">Completa la información para iniciar tus proyectos</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 className="font-bold text-amber-900 text-lg">Tienes briefs pendientes</h3>
-                                <p className="text-amber-700 text-sm">Completa la información para iniciar tus proyectos.</p>
-                            </div>
+                            <Link to="/projects?filter=pending">
+                                <button className="btn-luxury">
+                                    Completar ahora
+                                    <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </Link>
                         </div>
-                        <Link to="/projects?filter=pending">
-                            <Button variant="accent">
-                                Completar ahora
-                                <ArrowRight className="w-4 h-4" />
-                            </Button>
-                        </Link>
                     </div>
                 )}
 
-                {/* Recent Projects List */}
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <CardTitle>Mis Proyectos</CardTitle>
-                        <Link to="/projects">
-                            <Button variant="ghost" size="sm" className="text-blue-600">
-                                Ver todos <ArrowRight className="w-4 h-4 ml-1" />
-                            </Button>
+                {/* Projects List */}
+                <div className="card-luxury overflow-hidden">
+                    <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                        <h2 className="text-lg font-bold text-white">Mis Proyectos</h2>
+                        <Link to="/projects" className="btn-ghost-luxury text-amber-400 hover:text-amber-300">
+                            Ver todos <ArrowRight className="w-4 h-4 ml-1" />
                         </Link>
-                    </CardHeader>
-                    <CardContent>
-                        {metrics?.recentProjects?.length === 0 ? (
-                            <div className="text-center py-12">
-                                <FolderKanban className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                                <p className="text-gray-500">No tienes proyectos aún</p>
+                    </div>
+
+                    {metrics?.recentProjects?.length === 0 ? (
+                        <div className="text-center py-16">
+                            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-4">
+                                <FolderKanban className="w-8 h-8 text-white/30" />
                             </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {metrics?.recentProjects?.map((project) => (
-                                    <Link
-                                        key={project.id}
-                                        to={`/projects/${project.id}`}
-                                        className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors border border-gray-100 group"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                                                <FolderKanban className="w-6 h-6 text-blue-600" />
-                                            </div>
-                                            <div>
-                                                <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                                                    {project.name}
-                                                </p>
-                                                <p className="text-sm text-gray-500">
-                                                    {getProjectTypeLabel(project.type)}
-                                                </p>
-                                            </div>
+                            <p className="text-white/40">No tienes proyectos aún</p>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-white/5">
+                            {metrics?.recentProjects?.map((project, index) => (
+                                <Link
+                                    key={project.id}
+                                    to={`/projects/${project.id}`}
+                                    className="flex items-center justify-between p-5 hover:bg-white/[0.02] transition-colors group animate-fade-in"
+                                    style={{ animationDelay: `${index * 75}ms` }}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-500/20 flex items-center justify-center">
+                                            <FolderKanban className="w-5 h-5 text-cyan-400" />
                                         </div>
-                                        <div className="flex items-center gap-4">
-                                            <StatusBadge status={project.status} />
-                                            <div className="flex items-center gap-1.5 text-sm text-gray-400">
-                                                <Clock className="w-4 h-4" />
-                                                {formatDate(project.deadline || project.createdAt)}
-                                            </div>
-                                            <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                                        <div>
+                                            <p className="font-semibold text-white group-hover:text-amber-400 transition-colors">
+                                                {project.name}
+                                            </p>
+                                            <p className="text-sm text-white/40">
+                                                {getProjectTypeLabel(project.type)}
+                                            </p>
                                         </div>
-                                    </Link>
-                                ))}
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                        <StatusBadge status={project.status} />
+                                        <div className="hidden sm:flex items-center gap-1.5 text-sm text-white/30">
+                                            <Clock className="w-4 h-4" />
+                                            {formatDate(project.createdAt)}
+                                        </div>
+                                        <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-amber-400 transition-colors" />
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
         );
     }
@@ -237,99 +252,105 @@ export default function DashboardPage() {
             {/* Welcome Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                        {user?.name?.split(' ')[0]} <span className="text-2xl">👋</span>
+                    <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                        <span className="text-3xl">👋</span>
+                        Hola, <span className="text-gradient-gold">{user?.name?.split(' ')[0]}</span>
                     </h1>
-                    <p className="text-gray-500 mt-1">Aquí tienes un resumen de la actividad de tu agencia</p>
+                    <p className="text-white/50 mt-2">Resumen de actividad de tu agencia</p>
                 </div>
                 <Link to="/projects/new">
-                    <Button>
+                    <button className="btn-luxury">
                         <Plus className="w-4 h-4" />
                         Nuevo Proyecto
-                    </Button>
+                    </button>
                 </Link>
             </div>
 
             {/* Stats Grid */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                 {statCards.map((stat, index) => (
-                    <Card key={index} hover>
-                        <CardContent className="p-6">
-                            <div className="flex items-start justify-between">
-                                <div className={`p-3 rounded-xl ${stat.iconBg}`}>
-                                    <stat.icon className={`w-6 h-6 ${stat.iconColor}`} />
-                                </div>
+                    <div
+                        key={index}
+                        className={`relative overflow-hidden card-luxury p-6 border ${stat.borderColor} animate-fade-in group cursor-default`}
+                        style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                        {/* Background glow */}
+                        <div className={`absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br ${stat.gradient} rounded-full blur-2xl opacity-50 group-hover:opacity-75 transition-opacity`} />
 
+                        <div className="relative">
+                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.gradient} border ${stat.borderColor} flex items-center justify-center mb-4`}>
+                                <stat.icon className={`w-5 h-5 ${stat.iconColor}`} />
                             </div>
-                            <div className="mt-4">
-                                <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-                                <p className="text-sm text-gray-500 mt-1">{stat.title}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            <p className="text-4xl font-bold text-white">{stat.value}</p>
+                            <p className="text-sm text-white/40 mt-1">{stat.title}</p>
+                        </div>
+                    </div>
                 ))}
             </div>
 
             {/* Recent Projects */}
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between border-b border-gray-100">
-                    <CardTitle>Proyectos Recientes</CardTitle>
-                    <Link to="/projects">
-                        <Button variant="ghost" size="sm" className="text-blue-600">
-                            Ver todos <ArrowRight className="w-4 h-4 ml-1" />
-                        </Button>
+            <div className="card-luxury overflow-hidden">
+                <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 border border-amber-500/20 flex items-center justify-center">
+                            <Sparkles className="w-5 h-5 text-amber-400" />
+                        </div>
+                        <h2 className="text-lg font-bold text-white">Proyectos Recientes</h2>
+                    </div>
+                    <Link to="/projects" className="btn-ghost-luxury text-amber-400 hover:text-amber-300">
+                        Ver todos <ArrowRight className="w-4 h-4 ml-1" />
                     </Link>
-                </CardHeader>
-                <CardContent className="p-0">
-                    {metrics?.recentProjects?.length === 0 ? (
-                        <div className="text-center py-16">
-                            <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mx-auto mb-4">
-                                <FolderKanban className="w-8 h-8 text-blue-600" />
-                            </div>
-                            <h3 className="font-semibold text-gray-900 mb-2">No hay proyectos aún</h3>
-                            <p className="text-gray-500 mb-6">Crea tu primer proyecto para empezar</p>
-                            <Link to="/projects/new">
-                                <Button>
-                                    <Plus className="w-4 h-4" />
-                                    Crear Proyecto
-                                </Button>
+                </div>
+
+                {metrics?.recentProjects?.length === 0 ? (
+                    <div className="text-center py-20">
+                        <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mx-auto mb-6">
+                            <FolderKanban className="w-10 h-10 text-white/20" />
+                        </div>
+                        <h3 className="font-semibold text-white text-lg mb-2">No hay proyectos aún</h3>
+                        <p className="text-white/40 mb-8">Crea tu primer proyecto para empezar</p>
+                        <Link to="/projects/new">
+                            <button className="btn-luxury">
+                                <Plus className="w-4 h-4" />
+                                Crear Proyecto
+                            </button>
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="divide-y divide-white/5">
+                        {metrics?.recentProjects?.map((project, index) => (
+                            <Link
+                                key={project.id}
+                                to={`/projects/${project.id}`}
+                                className="flex flex-col sm:flex-row sm:items-center justify-between p-5 hover:bg-white/[0.02] transition-all group gap-4 animate-fade-in"
+                                style={{ animationDelay: `${index * 75}ms` }}
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-500/20 flex items-center justify-center">
+                                        <FolderKanban className="w-6 h-6 text-cyan-400" />
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-white group-hover:text-amber-400 transition-colors text-lg">
+                                            {project.name}
+                                        </p>
+                                        <p className="text-sm text-white/40">
+                                            {project.client?.name} • {getProjectTypeLabel(project.type)}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center justify-between w-full sm:w-auto gap-4">
+                                    <StatusBadge status={project.status} />
+                                    <div className="flex items-center gap-1.5 text-sm text-white/30">
+                                        <Clock className="w-4 h-4" />
+                                        {formatDate(project.createdAt)}
+                                    </div>
+                                    <ArrowRight className="w-5 h-5 text-white/20 group-hover:text-amber-400 transition-colors hidden sm:block" />
+                                </div>
                             </Link>
-                        </div>
-                    ) : (
-                        <div className="divide-y divide-gray-100">
-                            {metrics?.recentProjects?.map((project) => (
-                                <Link
-                                    key={project.id}
-                                    to={`/projects/${project.id}`}
-                                    className="flex flex-col sm:flex-row sm:items-center justify-between p-5 hover:bg-gray-50 transition-colors group gap-4"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                                            <FolderKanban className="w-6 h-6 text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                                                {project.name}
-                                            </p>
-                                            <p className="text-sm text-gray-500">
-                                                {project.client?.name} • {getProjectTypeLabel(project.type)}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between w-full sm:w-auto gap-4">
-                                        <StatusBadge status={project.status} />
-                                        <div className="flex items-center gap-1.5 text-sm text-gray-400">
-                                            <Clock className="w-4 h-4" />
-                                            {formatDate(project.deadline || project.createdAt)}
-                                        </div>
-                                        <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-blue-600 transition-colors hidden sm:block" />
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

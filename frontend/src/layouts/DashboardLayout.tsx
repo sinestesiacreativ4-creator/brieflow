@@ -8,13 +8,12 @@ import {
     Users,
     UserCircle,
     Settings,
-    Bell,
     LogOut,
     Menu,
     X,
     ChevronDown,
+    Sparkles,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { NotificationBell } from '@/components/NotificationBell';
@@ -42,11 +41,18 @@ export default function DashboardLayout() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30">
+        <div className="min-h-screen bg-luxury">
+            {/* Ambient light effects */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute -top-40 -left-40 w-96 h-96 bg-amber-500/5 rounded-full blur-[100px]" />
+                <div className="absolute top-1/3 -right-40 w-80 h-80 bg-cyan-500/5 rounded-full blur-[100px]" />
+                <div className="absolute -bottom-40 left-1/3 w-96 h-96 bg-amber-500/3 rounded-full blur-[100px]" />
+            </div>
+
             {/* Mobile sidebar backdrop */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm z-40 lg:hidden"
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
                     onClick={() => setSidebarOpen(false)}
                 />
             )}
@@ -54,21 +60,36 @@ export default function DashboardLayout() {
             {/* Sidebar */}
             <aside
                 className={cn(
-                    'fixed top-0 left-0 z-50 h-full w-72 bg-white border-r border-gray-100 shadow-xl shadow-gray-200/50 transition-transform duration-300 lg:translate-x-0',
+                    'fixed top-0 left-0 z-50 h-full w-72 transition-transform duration-300 lg:translate-x-0',
+                    'bg-gradient-to-b from-gray-900/95 via-gray-900/98 to-gray-950/95 backdrop-blur-xl',
+                    'border-r border-white/5',
                     sidebarOpen ? 'translate-x-0' : '-translate-x-full'
                 )}
             >
-                {/* Sidebar header */}
-                <div className="h-20 flex items-center justify-between px-6 border-b border-gray-100">
-                    <Link to="/dashboard" className="flex items-center gap-3">
-                        <img src="/logo.png" alt="BriefFlow" className="w-10 h-10 rounded-xl shadow-lg shadow-blue-500/20" />
+                {/* Logo area */}
+                <div className="h-20 flex items-center justify-between px-6 border-b border-white/5">
+                    <Link to="/dashboard" className="flex items-center gap-3 group">
+                        <div className="relative">
+                            <img
+                                src="/logo.png"
+                                alt="BriefFlow"
+                                className="w-11 h-11 rounded-xl shadow-lg shadow-amber-500/10 transition-transform group-hover:scale-105"
+                            />
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full border-2 border-gray-900 flex items-center justify-center">
+                                <Sparkles className="w-2 h-2 text-gray-900" />
+                            </div>
+                        </div>
                         <div>
-                            <span className="font-bold text-xl text-gray-900">Brief<span className="text-blue-600">Flow</span></span>
-                            <p className="text-[10px] text-gray-400 font-medium tracking-wider uppercase">Pro Edition</p>
+                            <span className="font-bold text-xl tracking-tight text-white">
+                                Brief<span className="text-gradient-gold">Flow</span>
+                            </span>
+                            <p className="text-[10px] text-amber-500/60 font-semibold tracking-[0.2em] uppercase">
+                                Pro Edition
+                            </p>
                         </div>
                     </Link>
                     <button
-                        className="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500"
+                        className="lg:hidden p-2.5 rounded-xl hover:bg-white/5 text-white/60 hover:text-white transition-colors"
                         onClick={() => setSidebarOpen(false)}
                     >
                         <X className="w-5 h-5" />
@@ -76,13 +97,16 @@ export default function DashboardLayout() {
                 </div>
 
                 {/* Navigation */}
-                <nav className="p-4 space-y-1">
+                <nav className="p-4 space-y-1.5">
+                    <p className="px-3 py-2 text-[10px] font-semibold text-white/30 uppercase tracking-[0.15em]">
+                        Menú principal
+                    </p>
                     {navigation.filter(item => {
                         if (user?.role === 'CLIENT') {
                             return ['Dashboard', 'Proyectos', 'Configuración'].includes(item.name);
                         }
                         return true;
-                    }).map((item) => {
+                    }).map((item, index) => {
                         let linkTo = item.href;
                         if (user?.role === 'CLIENT' && item.href === '/dashboard') {
                             linkTo = '/client/dashboard';
@@ -96,51 +120,61 @@ export default function DashboardLayout() {
                                 key={item.name}
                                 to={linkTo}
                                 className={cn(
-                                    'relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200',
+                                    'relative flex items-center gap-3.5 px-4 py-3 rounded-xl text-[0.9375rem] font-medium transition-all duration-200',
+                                    'animate-fade-in',
                                     isActive
-                                        ? 'bg-blue-50 text-blue-600'
-                                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                        ? 'bg-gradient-to-r from-amber-500/10 to-amber-500/5 text-amber-400'
+                                        : 'text-white/50 hover:bg-white/[0.03] hover:text-white/90'
                                 )}
+                                style={{ animationDelay: `${index * 50}ms` }}
                                 onClick={() => setSidebarOpen(false)}
                             >
                                 {isActive && (
-                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full" />
+                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-gradient-to-b from-amber-400 to-amber-500 rounded-r-full" />
                                 )}
-                                <item.icon className="w-5 h-5" />
+                                <item.icon className={cn(
+                                    'w-5 h-5 transition-colors',
+                                    isActive ? 'text-amber-400' : 'text-white/40'
+                                )} />
                                 {item.name}
                             </Link>
                         );
                     })}
                 </nav>
 
-
-
                 {/* User section at bottom */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-gray-50/50">
+                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/5 bg-gray-950/50">
                     <div className="relative">
                         <button
                             onClick={() => setUserMenuOpen(!userMenuOpen)}
-                            className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white transition-all border border-transparent hover:border-gray-200 hover:shadow-sm"
+                            className={cn(
+                                'w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200',
+                                'hover:bg-white/[0.03] border border-transparent hover:border-white/5'
+                            )}
                         >
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm shadow-md shadow-blue-500/20">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-gray-900 font-bold text-sm shadow-lg shadow-amber-500/20">
                                 {user?.name?.charAt(0).toUpperCase()}
                             </div>
                             <div className="flex-1 text-left">
-                                <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
-                                <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                                <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
+                                <p className="text-xs text-white/40 truncate">{user?.email}</p>
                             </div>
                             <ChevronDown className={cn(
-                                'w-4 h-4 text-gray-400 transition-transform duration-200',
+                                'w-4 h-4 text-white/30 transition-transform duration-200',
                                 userMenuOpen && 'rotate-180'
                             )} />
                         </button>
 
                         {/* User dropdown menu */}
                         {userMenuOpen && (
-                            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-xl shadow-xl border border-gray-100 py-2 animate-fade-in">
+                            <div className="absolute bottom-full left-0 right-0 mb-2 bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-white/10 py-2 animate-fade-in overflow-hidden">
+                                <div className="px-4 py-3 border-b border-white/5">
+                                    <p className="text-xs text-white/40">Conectado como</p>
+                                    <p className="text-sm font-medium text-white truncate">{user?.email}</p>
+                                </div>
                                 <button
                                     onClick={handleLogout}
-                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
                                 >
                                     <LogOut className="w-4 h-4" />
                                     Cerrar sesión
@@ -152,40 +186,35 @@ export default function DashboardLayout() {
             </aside>
 
             {/* Main content */}
-            <div className="lg:pl-72">
+            <div className="lg:pl-72 relative">
                 {/* Top bar */}
-                <header className="sticky top-0 z-30 h-16 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+                <header className="sticky top-0 z-30 h-16 bg-gray-950/80 backdrop-blur-xl border-b border-white/5">
                     <div className="h-full px-4 lg:px-8 flex items-center justify-between">
                         <button
-                            className="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-500"
+                            className="lg:hidden p-2.5 rounded-xl hover:bg-white/5 text-white/60 hover:text-white transition-colors"
                             onClick={() => setSidebarOpen(true)}
                         >
                             <Menu className="w-5 h-5" />
                         </button>
 
+                        {/* Agency name on desktop */}
+                        <div className="hidden lg:flex items-center gap-2">
+                            <span className="text-sm text-white/40">Agencia:</span>
+                            <span className="text-sm font-semibold text-white">{agency?.name || 'BriefFlow'}</span>
+                        </div>
+
                         <div className="flex-1" />
 
-                        {/* Notifications */}
-                        <div className="flex items-center gap-3">
+                        {/* Actions */}
+                        <div className="flex items-center gap-2">
                             {permission === 'default' && (
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="hidden sm:flex bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200"
+                                <button
                                     onClick={subscribe}
+                                    className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-amber-400 bg-amber-500/10 hover:bg-amber-500/15 border border-amber-500/20 rounded-lg transition-colors"
                                 >
-                                    ¡Activar Alertas!
-                                </Button>
-                            )}
-                            {permission === 'granted' && (
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={sendTestNotification}
-                                    className="hidden sm:flex text-gray-500 hover:text-gray-900"
-                                >
-                                    🔔 Test
-                                </Button>
+                                    <Sparkles className="w-4 h-4" />
+                                    Activar Alertas
+                                </button>
                             )}
                             <NotificationBell />
                         </div>
@@ -193,7 +222,7 @@ export default function DashboardLayout() {
                 </header>
 
                 {/* Page content */}
-                <main className="p-4 lg:p-8">
+                <main className="p-4 lg:p-8 min-h-[calc(100vh-4rem)]">
                     <Outlet />
                 </main>
             </div>

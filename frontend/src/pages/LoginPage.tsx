@@ -4,9 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuthStore } from '@/lib/auth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ArrowLeft, Mail, Lock } from 'lucide-react';
+import { ArrowLeft, Mail, Lock, Sparkles, Loader2 } from 'lucide-react';
 
 const loginSchema = z.object({
     email: z.string().email('Email inválido'),
@@ -46,49 +44,67 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-amber-50/30 flex flex-col">
+        <div className="min-h-screen bg-luxury flex flex-col relative overflow-hidden">
+            {/* Ambient light effects */}
+            <div className="fixed inset-0 pointer-events-none">
+                <div className="absolute -top-40 left-1/4 w-96 h-96 bg-amber-500/[0.07] rounded-full blur-[120px]" />
+                <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-cyan-500/[0.05] rounded-full blur-[100px]" />
+            </div>
+
             {/* Header */}
-            <header className="p-6">
-                <Link to="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
+            <header className="relative p-6">
+                <Link
+                    to="/"
+                    className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors text-sm"
+                >
                     <ArrowLeft className="w-4 h-4" />
                     Volver al inicio
                 </Link>
             </header>
 
             {/* Main Content */}
-            <main className="flex-1 flex items-center justify-center px-4 py-12">
-                <div className="w-full max-w-md">
+            <main className="relative flex-1 flex items-center justify-center px-4 py-12">
+                <div className="w-full max-w-md animate-fade-in-up">
                     {/* Logo */}
-                    <div className="text-center mb-8">
-                        <Link to="/" className="inline-flex items-center gap-2">
-                            <img src="/logo.png" alt="BriefFlow" className="w-12 h-12 rounded-xl shadow-lg shadow-blue-500/20" />
+                    <div className="text-center mb-10">
+                        <Link to="/" className="inline-block">
+                            <div className="relative">
+                                <img
+                                    src="/logo.png"
+                                    alt="BriefFlow"
+                                    className="w-16 h-16 rounded-2xl shadow-2xl shadow-amber-500/20 mx-auto"
+                                />
+                                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-amber-400 to-amber-500 rounded-full border-2 border-gray-900 flex items-center justify-center">
+                                    <Sparkles className="w-3 h-3 text-gray-900" />
+                                </div>
+                            </div>
                         </Link>
-                        <h1 className="mt-6 text-2xl font-bold text-gray-900">
-                            {isClient ? 'Portal de Cliente' : 'Bienvenido de nuevo'}
+                        <h1 className="mt-8 text-3xl font-bold text-white tracking-tight">
+                            {isClient ? 'Portal de Cliente' : 'Bienvenido'}
                         </h1>
-                        <p className="mt-2 text-gray-600">
+                        <p className="mt-3 text-white/50">
                             {isClient
                                 ? 'Ingresa para ver tus proyectos'
-                                : 'Inicia sesión en tu cuenta de BriefFlow'}
+                                : 'Inicia sesión en tu cuenta'}
                         </p>
                     </div>
 
                     {/* Login Tabs */}
-                    <div className="flex gap-2 mb-6">
+                    <div className="flex gap-2 mb-8 p-1.5 bg-white/5 rounded-xl border border-white/10">
                         <Link
                             to="/login"
-                            className={`flex-1 text-center py-3 px-4 rounded-xl text-sm font-medium transition-all ${!isClient
-                                ? 'bg-blue-100 text-blue-700'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            className={`flex-1 text-center py-3 px-4 rounded-lg text-sm font-medium transition-all ${!isClient
+                                ? 'bg-gradient-to-r from-amber-500/20 to-amber-500/10 text-amber-400 border border-amber-500/30'
+                                : 'text-white/50 hover:text-white/70'
                                 }`}
                         >
                             Agencia
                         </Link>
                         <Link
                             to="/login?type=client"
-                            className={`flex-1 text-center py-3 px-4 rounded-xl text-sm font-medium transition-all ${isClient
-                                ? 'bg-blue-100 text-blue-700'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            className={`flex-1 text-center py-3 px-4 rounded-lg text-sm font-medium transition-all ${isClient
+                                ? 'bg-gradient-to-r from-amber-500/20 to-amber-500/10 text-amber-400 border border-amber-500/30'
+                                : 'text-white/50 hover:text-white/70'
                                 }`}
                         >
                             Cliente
@@ -96,81 +112,96 @@ export default function LoginPage() {
                     </div>
 
                     {/* Form Card */}
-                    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
+                    <div className="card-luxury p-8">
                         {error && (
-                            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+                            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-sm text-red-400 flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
                                 {error}
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                                <label className="label">Email</label>
                                 <div className="relative">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    <Input
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                                    <input
                                         {...register('email')}
                                         type="email"
                                         placeholder="tu@email.com"
-                                        className="pl-12"
-                                        error={errors.email?.message}
+                                        className="input-luxury pl-12"
                                     />
                                 </div>
                                 {errors.email && (
-                                    <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+                                    <p className="mt-2 text-sm text-red-400">{errors.email.message}</p>
                                 )}
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Contraseña</label>
+                                <label className="label">Contraseña</label>
                                 <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    <Input
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                                    <input
                                         {...register('password')}
                                         type="password"
                                         placeholder="••••••••"
-                                        className="pl-12"
-                                        error={errors.password?.message}
+                                        className="input-luxury pl-12"
                                     />
                                 </div>
                                 {errors.password && (
-                                    <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
+                                    <p className="mt-2 text-sm text-red-400">{errors.password.message}</p>
                                 )}
                             </div>
 
                             <div className="flex items-center justify-between text-sm">
-                                <label className="flex items-center gap-2 cursor-pointer">
+                                <label className="flex items-center gap-2.5 cursor-pointer">
                                     <input
                                         type="checkbox"
-                                        className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        className="w-4 h-4 rounded border-white/20 bg-white/5 text-amber-500 focus:ring-amber-500/30"
                                     />
-                                    <span className="text-gray-600">Recuérdame</span>
+                                    <span className="text-white/50">Recuérdame</span>
                                 </label>
-                                <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+                                <a href="#" className="font-medium text-amber-400 hover:text-amber-300 transition-colors">
                                     ¿Olvidaste tu contraseña?
                                 </a>
                             </div>
 
-                            <Button type="submit" className="w-full" loading={isLoading}>
-                                Iniciar Sesión
-                            </Button>
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="btn-luxury w-full"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Iniciando...
+                                    </>
+                                ) : (
+                                    'Iniciar Sesión'
+                                )}
+                            </button>
                         </form>
 
                         {!isClient && (
-                            <div className="mt-6 text-center">
-                                <p className="text-sm text-gray-600">
+                            <div className="mt-8 pt-6 border-t border-white/5 text-center">
+                                <p className="text-sm text-white/40">
                                     ¿No tienes una cuenta?{' '}
-                                    <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">
+                                    <Link to="/signup" className="font-medium text-amber-400 hover:text-amber-300 transition-colors">
                                         Regístrate gratis
                                     </Link>
                                 </p>
                             </div>
                         )}
                     </div>
-
-
                 </div>
             </main>
+
+            {/* Footer subtle branding */}
+            <footer className="relative py-6 text-center">
+                <p className="text-xs text-white/20">
+                    Powered by <span className="text-gradient-gold font-medium">BriefFlow</span>
+                </p>
+            </footer>
         </div>
     );
 }
