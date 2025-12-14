@@ -95,7 +95,14 @@ export const notificationsApi = {
     markAllAsRead: () => api.post('/notifications/mark-all-read'),
 };
 
+
 export const agencyApi = {
     get: () => api.get('/agency'),
     update: (data: any) => api.patch('/agency', data),
+};
+
+export const authApi = {
+    login: (email: string, password: string) => api.post('/auth/login', { email, password }),
+    register: (data: any) => api.post('/auth/register', data),
+    getProfile: () => api.get('/auth/me'),
 };

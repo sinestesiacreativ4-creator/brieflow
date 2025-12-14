@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuthStore } from '@/lib/auth';
-import NotificationSettings from '@/components/NotificationSettings';
+import { NotificationSettings } from '@/components/NotificationSettings';
 import {
     User,
     Bell,
