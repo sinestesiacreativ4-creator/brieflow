@@ -3,12 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { projectsApi, briefsApi, filesApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { useSocket } from '@/hooks/useSocket';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StatusBadge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Progress } from '@/components/ui/progress';
 import { formatDate, formatDateTime, formatFileSize, getProjectTypeLabel } from '@/lib/utils';
 import {
     ArrowLeft,
@@ -24,8 +19,9 @@ import {
     Image,
     File,
     Loader2,
+    Layout,
+    Zap,
 } from 'lucide-react';
-import { Layout } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { getWorkflowForType } from '@/lib/workflow';
 import jsPDF from 'jspdf';
@@ -43,7 +39,6 @@ export default function ProjectDetailPage() {
     const [approvingBrief, setApprovingBrief] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // Real-time chat & status
     const {
         isConnected,
         messages: realtimeMessages,
@@ -63,7 +58,6 @@ export default function ProjectDetailPage() {
         scrollToBottom();
     }, [project?.messages, realtimeMessages]);
 
-    // Sync initial messages with realtime
     useEffect(() => {
         if (project?.messages) {
             setRealtimeMessages(project.messages);
@@ -140,7 +134,6 @@ export default function ProjectDetailPage() {
     const workflowSteps = project ? getWorkflowForType(project.type) : [];
     const currentStepIndex = project ? workflowSteps.findIndex(s => s.id === project.status) : 0;
 
-    // PDF Export Function
     const downloadBriefAsPDF = () => {
         if (!project?.brief) return;
 
@@ -152,31 +145,22 @@ export default function ProjectDetailPage() {
         const lineHeight = 7;
         const maxWidth = pageWidth - margin * 2;
 
-        // Helper to add text with word wrap
         const addText = (text: string, isBold = false) => {
-            if (isBold) {
-                doc.setFont('helvetica', 'bold');
-            } else {
-                doc.setFont('helvetica', 'normal');
-            }
+            if (isBold) doc.setFont('helvetica', 'bold');
+            else doc.setFont('helvetica', 'normal');
             const lines = doc.splitTextToSize(text, maxWidth);
             lines.forEach((line: string) => {
-                if (y > 270) {
-                    doc.addPage();
-                    y = 20;
-                }
+                if (y > 270) { doc.addPage(); y = 20; }
                 doc.text(line, margin, y);
                 y += lineHeight;
             });
         };
 
-        // Title
         doc.setFontSize(20);
         doc.setFont('helvetica', 'bold');
         doc.text(`Brief: ${project.name}`, margin, y);
         y += 12;
 
-        // Metadata
         doc.setFontSize(10);
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(100, 100, 100);
@@ -190,7 +174,6 @@ export default function ProjectDetailPage() {
         doc.setTextColor(0, 0, 0);
         doc.setFontSize(11);
 
-        // Brief Fields
         const fields = [
             { label: 'Objetivos del Proyecto', value: brief.projectGoals },
             { label: 'Público Objetivo', value: brief.targetAudience },
@@ -213,15 +196,14 @@ export default function ProjectDetailPage() {
             }
         });
 
-        // Save
         doc.save(`Brief-${project.name.replace(/\s+/g, '_')}.pdf`);
     };
 
     if (loading) {
         return (
-            <div className="space-y-6 animate-pulse">
-                <div className="h-8 bg-gray-200 rounded w-1/3" />
-                <div className="h-64 bg-gray-200 rounded-2xl" />
+            <div className="space-y-6">
+                <div className="h-8 bg-white/5 rounded w-1/3 animate-pulse" />
+                <div className="h-64 bg-white/5 rounded-2xl animate-pulse" />
             </div>
         );
     }
@@ -231,421 +213,367 @@ export default function ProjectDetailPage() {
     const isClient = user?.role === 'CLIENT';
     const briefCompleted = project.brief?.completedAt != null;
 
+    const tabs = [
+        { id: 'workflow', label: 'Workflow', icon: Layout },
+        { id: 'brief', label: 'Brief', icon: FileText },
+        { id: 'chat', label: 'Chat', icon: MessageSquare, count: project.messages?.length },
+        { id: 'files', label: 'Archivos', icon: Upload, count: project.files?.length },
+    ];
+
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                <div>
-                    <Button variant="ghost" onClick={() => navigate('/projects')} className="mb-2">
-                        <ArrowLeft className="w-4 h-4 mr-2" />
-                        Volver
-                    </Button>
-                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{project.name}</h1>
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 text-sm text-gray-500">
-                        <span className="truncate max-w-[100px] sm:max-w-none">{project.client?.name}</span>
-                        <span className="hidden sm:inline">•</span>
-                        <span className="hidden sm:inline">{getProjectTypeLabel(project.type)}</span>
-                        <StatusBadge status={project.status} />
+            <div className="flex flex-col gap-4">
+                <button
+                    onClick={() => navigate('/projects')}
+                    className="flex items-center gap-2 text-white/50 hover:text-cyan-400 transition-colors w-fit text-sm"
+                >
+                    <ArrowLeft className="w-4 h-4" />
+                    Volver
+                </button>
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-white">{project.name}</h1>
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 text-sm text-white/40">
+                            <span>{project.client?.name}</span>
+                            <span className="hidden sm:inline text-white/20">•</span>
+                            <span className="hidden sm:inline">{getProjectTypeLabel(project.type)}</span>
+                            <StatusBadge status={project.status} />
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Tabs */}
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="flex-wrap h-auto gap-1 p-1">
-                    <TabsTrigger value="workflow" className="text-xs sm:text-sm px-2 sm:px-4">
-                        <Layout className="w-4 h-4 sm:mr-2" />
-                        <span className="hidden sm:inline">Workflow</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="brief" className="text-xs sm:text-sm px-2 sm:px-4">
-                        <FileText className="w-4 h-4 sm:mr-2" />
-                        <span className="hidden sm:inline">Brief</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="chat" className="text-xs sm:text-sm px-2 sm:px-4">
-                        <MessageSquare className="w-4 h-4 sm:mr-2" />
-                        <span className="hidden sm:inline">Chat</span>
-                        {project.messages?.length > 0 && (
-                            <span className="ml-1 sm:ml-2 bg-indigo-100 text-indigo-600 text-xs px-1.5 sm:px-2 py-0.5 rounded-full">
-                                {project.messages.length}
+            <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-medium transition-all whitespace-nowrap
+                            ${activeTab === tab.id
+                                ? 'bg-gradient-to-r from-cyan-500/15 to-cyan-500/5 text-cyan-400 border border-cyan-500/30'
+                                : 'bg-white/5 text-white/50 hover:text-white/80 border border-white/10 hover:border-white/20'}
+                        `}
+                    >
+                        <tab.icon className="w-4 h-4" />
+                        <span className="hidden sm:inline">{tab.label}</span>
+                        {tab.count && tab.count > 0 && (
+                            <span className="bg-cyan-500/20 text-cyan-400 text-xs px-2 py-0.5 rounded-full">
+                                {tab.count}
                             </span>
                         )}
-                    </TabsTrigger>
-                    <TabsTrigger value="files" className="text-xs sm:text-sm px-2 sm:px-4">
-                        <Upload className="w-4 h-4 sm:mr-2" />
-                        <span className="hidden sm:inline">Archivos</span>
-                        {project.files?.length > 0 && (
-                            <span className="ml-1 sm:ml-2 bg-indigo-100 text-indigo-600 text-xs px-1.5 sm:px-2 py-0.5 rounded-full">
-                                {project.files.length}
-                            </span>
-                        )}
-                    </TabsTrigger>
-                </TabsList>
+                    </button>
+                ))}
+            </div>
 
-                {/* Workflow Tab (NEW) */}
-                <TabsContent value="workflow">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Flujo de Trabajo: {getProjectTypeLabel(project.type)}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="relative py-8 px-4">
-                                {/* Progress Bar Background */}
-                                <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 rounded-full" />
+            {/* Workflow Tab */}
+            {activeTab === 'workflow' && (
+                <div className="card-luxury p-8 animate-fade-in">
+                    <h2 className="text-xl font-bold text-white mb-8">Flujo de Trabajo: {getProjectTypeLabel(project.type)}</h2>
 
-                                {/* Active Progress */}
-                                <div
-                                    className="absolute top-1/2 left-0 h-1 bg-blue-600 -translate-y-1/2 rounded-full transition-all duration-500"
-                                    style={{ width: `${(currentStepIndex / (workflowSteps.length - 1)) * 100}%` }}
-                                />
+                    <div className="relative py-12 px-4">
+                        {/* Progress Bar Background */}
+                        <div className="absolute top-1/2 left-0 w-full h-1 bg-white/10 -translate-y-1/2 rounded-full" />
 
-                                {/* Steps */}
-                                <div className="relative flex justify-between">
-                                    {workflowSteps.map((step, index) => {
-                                        const isActive = index <= currentStepIndex;
-                                        const isCurrent = index === currentStepIndex;
+                        {/* Active Progress */}
+                        <div
+                            className="absolute top-1/2 left-0 h-1 bg-gradient-to-r from-cyan-500 to-cyan-400 -translate-y-1/2 rounded-full transition-all duration-500"
+                            style={{ width: `${(currentStepIndex / (workflowSteps.length - 1)) * 100}%` }}
+                        />
 
-                                        return (
-                                            <div key={step.id} className="flex flex-col items-center group relative">
-                                                <button
-                                                    onClick={() => !isClient && updateStatus(step.id)}
-                                                    disabled={isClient}
-                                                    className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 z-10 ${isActive
-                                                        ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30 scale-110'
-                                                        : 'bg-white border-gray-300 text-gray-400 hover:border-blue-400'
-                                                        } ${!isClient && 'cursor-pointer hover:scale-105'}`}
-                                                    title={isClient ? 'Solo la agencia puede cambiar el estado' : 'Click para cambiar estado'}
-                                                >
-                                                    {isActive ? <CheckCircle2 className="w-5 h-5" /> : <div className="w-3 h-3 rounded-full bg-gray-300" />}
-                                                </button>
+                        {/* Steps */}
+                        <div className="relative flex justify-between">
+                            {workflowSteps.map((step, index) => {
+                                const isActive = index <= currentStepIndex;
+                                const isCurrent = index === currentStepIndex;
 
-                                                <div className={`absolute top-14 text-xs font-semibold px-2 py-1 rounded transition-colors whitespace-nowrap ${isCurrent ? 'bg-blue-100 text-blue-700' : 'text-gray-500'
-                                                    }`}>
-                                                    {step.label}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
+                                return (
+                                    <div key={step.id} className="flex flex-col items-center group relative">
+                                        <button
+                                            onClick={() => !isClient && updateStatus(step.id)}
+                                            disabled={isClient}
+                                            className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 z-10
+                                                ${isActive
+                                                    ? 'bg-cyan-500 border-cyan-500 text-gray-950 shadow-[0_0_20px_rgba(6,182,212,0.4)]'
+                                                    : 'bg-gray-900 border-white/20 text-white/40 hover:border-cyan-500/50'}
+                                                ${!isClient && 'cursor-pointer hover:scale-110'}
+                                            `}
+                                            title={isClient ? 'Solo la agencia puede cambiar el estado' : 'Click para cambiar estado'}
+                                        >
+                                            {isActive ? <CheckCircle2 className="w-5 h-5" /> : <div className="w-3 h-3 rounded-full bg-white/20" />}
+                                        </button>
 
-                            <div className="mt-20 bg-gray-50 rounded-xl p-6 border border-gray-100 flex items-start gap-4">
-                                <div className="p-3 bg-blue-100 rounded-lg">
-                                    <Layout className="w-6 h-6 text-blue-600" />
-                                </div>
-                                <div>
-                                    <h3 className="font-semibold text-gray-900 mb-1">Estado Actual: {workflowSteps[currentStepIndex]?.label}</h3>
-                                    <p className="text-sm text-gray-500">
-                                        {isClient
-                                            ? 'Tu agencia actualizará el estado a medida que avance el proyecto.'
-                                            : 'Haz clic en los círculos de arriba para avanzar o retroceder el estado del proyecto. El cliente será notificado automáticamente.'}
-                                    </p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
+                                        <div className={`absolute top-16 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap
+                                            ${isCurrent
+                                                ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'
+                                                : 'text-white/40'}`}
+                                        >
+                                            {step.label}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
 
-                {/* Brief Tab */}
-                <TabsContent value="brief">
-                    <Card>
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <div>
-                                <CardTitle>Brief del Proyecto</CardTitle>
-                                {briefCompleted && (
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        Completado el {formatDate(project.brief.completedAt)}
-                                    </p>
-                                )}
-                            </div>
+                    <div className="mt-24 p-6 rounded-xl bg-cyan-500/5 border border-cyan-500/20 flex items-start gap-4">
+                        <div className="p-3 bg-cyan-500/15 rounded-xl border border-cyan-500/30">
+                            <Zap className="w-6 h-6 text-cyan-400" />
+                        </div>
+                        <div>
+                            <h3 className="font-semibold text-white mb-1">Estado Actual: {workflowSteps[currentStepIndex]?.label}</h3>
+                            <p className="text-sm text-white/50">
+                                {isClient
+                                    ? 'Tu agencia actualizará el estado a medida que avance el proyecto.'
+                                    : 'Haz clic en los círculos para cambiar el estado. El cliente será notificado automáticamente.'}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Brief Tab */}
+            {activeTab === 'brief' && (
+                <div className="card-luxury p-8 animate-fade-in">
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-8">
+                        <div>
+                            <h2 className="text-xl font-bold text-white">Brief del Proyecto</h2>
+                            {briefCompleted && (
+                                <p className="text-sm text-white/40 mt-1">
+                                    Completado el {formatDate(project.brief.completedAt)}
+                                </p>
+                            )}
+                        </div>
+                        <div className="flex gap-2">
                             {!isClient && briefCompleted && project.status === 'BRIEF_IN_REVIEW' && (
-                                <div className="flex gap-2">
-                                    <Button variant="outline" onClick={handleRequestChanges}>
-                                        <XCircle className="w-4 h-4 mr-2" />
+                                <>
+                                    <button onClick={handleRequestChanges} className="btn-secondary-luxury">
+                                        <XCircle className="w-4 h-4" />
                                         Solicitar cambios
-                                    </Button>
-                                    <Button onClick={handleApproveBrief} loading={approvingBrief}>
-                                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                                    </button>
+                                    <button onClick={handleApproveBrief} disabled={approvingBrief} className="btn-luxury">
+                                        {approvingBrief ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                                         Aprobar Brief
-                                    </Button>
-                                </div>
+                                    </button>
+                                </>
                             )}
                             {!isClient && briefCompleted && (
-                                <Button variant="outline" onClick={downloadBriefAsPDF} className="ml-2">
-                                    <Download className="w-4 h-4 mr-2" />
+                                <button onClick={downloadBriefAsPDF} className="btn-secondary-luxury">
+                                    <Download className="w-4 h-4" />
                                     Descargar PDF
-                                </Button>
+                                </button>
                             )}
-                        </CardHeader>
-                        <CardContent>
-                            {!briefCompleted ? (
-                                <div className="text-center py-12">
-                                    <div className="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mx-auto mb-4">
-                                        <Clock className="w-8 h-8 text-amber-600" />
-                                    </div>
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                        Esperando Brief del Cliente
-                                    </h3>
-                                    <p className="text-gray-500 max-w-md mx-auto">
-                                        El cliente aún no ha completado el brief. Recibirás una notificación cuando lo haga.
-                                    </p>
-                                    {isClient && (
-                                        <Button
-                                            className="mt-6"
-                                            onClick={() => navigate(`/client/brief/${project.id}`)}
-                                        >
-                                            Completar Brief
-                                        </Button>
-                                    )}
+                        </div>
+                    </div>
+
+                    {!briefCompleted ? (
+                        <div className="text-center py-16">
+                            <div className="w-20 h-20 rounded-3xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-6">
+                                <Clock className="w-10 h-10 text-amber-400" />
+                            </div>
+                            <h3 className="text-xl font-semibold text-white mb-2">Esperando Brief del Cliente</h3>
+                            <p className="text-white/40 max-w-md mx-auto mb-6">
+                                El cliente aún no ha completado el brief. Recibirás una notificación cuando lo haga.
+                            </p>
+                            {isClient && (
+                                <button onClick={() => navigate(`/client/brief/${project.id}`)} className="btn-luxury">
+                                    Completar Brief
+                                </button>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {[
+                                { label: 'Objetivos del Proyecto', value: project.brief.projectGoals },
+                                { label: 'Público Objetivo', value: project.brief.targetAudience },
+                                { label: 'Mensaje Clave', value: project.brief.keyMessage },
+                                { label: 'Tono de Comunicación', value: project.brief.communicationTone },
+                                { label: 'Competidores/Referencias', value: project.brief.competitors },
+                                { label: 'Presupuesto', value: project.brief.budget },
+                                { label: 'Timeline', value: project.brief.timeline },
+                                { label: 'Entregables', value: project.brief.deliverables },
+                                { label: 'Notas Adicionales', value: project.brief.additionalNotes },
+                            ].filter(f => f.value).map((field, i) => (
+                                <div key={i} className="p-5 rounded-xl bg-white/[0.02] border border-white/5">
+                                    <h4 className="text-sm font-medium text-cyan-400 mb-2">{field.label}</h4>
+                                    <p className="text-white/80 whitespace-pre-wrap">{field.value}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Chat Tab */}
+            {activeTab === 'chat' && (
+                <div className="card-luxury h-[500px] sm:h-[600px] flex flex-col animate-fade-in overflow-hidden">
+                    <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                        <h2 className="text-lg font-bold text-white">Chat del Proyecto</h2>
+                        <div className="flex items-center gap-2">
+                            <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-white/30'}`} />
+                            <span className="text-xs text-white/40">{isConnected ? 'En línea' : 'Conectando...'}</span>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 flex flex-col overflow-hidden p-6">
+                        {/* Messages */}
+                        <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+                            {realtimeMessages.length === 0 ? (
+                                <div className="text-center py-12 text-white/40">
+                                    No hay mensajes aún. ¡Inicia la conversación!
                                 </div>
                             ) : (
-                                <div className="space-y-6">
-                                    {project.brief.projectGoals && (
-                                        <div>
-                                            <h4 className="text-sm font-medium text-gray-500 mb-2">Objetivos del Proyecto</h4>
-                                            <p className="text-gray-900 whitespace-pre-wrap">{project.brief.projectGoals}</p>
-                                        </div>
-                                    )}
-                                    {project.brief.targetAudience && (
-                                        <div>
-                                            <h4 className="text-sm font-medium text-gray-500 mb-2">Público Objetivo</h4>
-                                            <p className="text-gray-900 whitespace-pre-wrap">{project.brief.targetAudience}</p>
-                                        </div>
-                                    )}
-                                    {project.brief.keyMessage && (
-                                        <div>
-                                            <h4 className="text-sm font-medium text-gray-500 mb-2">Mensaje Clave</h4>
-                                            <p className="text-gray-900 whitespace-pre-wrap">{project.brief.keyMessage}</p>
-                                        </div>
-                                    )}
-                                    {project.brief.communicationTone && (
-                                        <div>
-                                            <h4 className="text-sm font-medium text-gray-500 mb-2">Tono de Comunicación</h4>
-                                            <p className="text-gray-900">{project.brief.communicationTone}</p>
-                                        </div>
-                                    )}
-                                    {project.brief.competitors && (
-                                        <div>
-                                            <h4 className="text-sm font-medium text-gray-500 mb-2">Competidores/Referencias</h4>
-                                            <p className="text-gray-900 whitespace-pre-wrap">{project.brief.competitors}</p>
-                                        </div>
-                                    )}
-                                    {project.brief.budget && (
-                                        <div>
-                                            <h4 className="text-sm font-medium text-gray-500 mb-2">Presupuesto</h4>
-                                            <p className="text-gray-900">{project.brief.budget}</p>
-                                        </div>
-                                    )}
-                                    {project.brief.timeline && (
-                                        <div>
-                                            <h4 className="text-sm font-medium text-gray-500 mb-2">Timeline</h4>
-                                            <p className="text-gray-900">{project.brief.timeline}</p>
-                                        </div>
-                                    )}
-                                    {project.brief.deliverables && (
-                                        <div>
-                                            <h4 className="text-sm font-medium text-gray-500 mb-2">Entregables</h4>
-                                            <p className="text-gray-900 whitespace-pre-wrap">{project.brief.deliverables}</p>
-                                        </div>
-                                    )}
-                                    {project.brief.additionalNotes && (
-                                        <div>
-                                            <h4 className="text-sm font-medium text-gray-500 mb-2">Notas Adicionales</h4>
-                                            <p className="text-gray-900 whitespace-pre-wrap">{project.brief.additionalNotes}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                {/* Chat Tab */}
-                <TabsContent value="chat">
-                    <Card className="h-[400px] sm:h-[600px] flex flex-col">
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle>Chat del Proyecto</CardTitle>
-                            <div className="flex items-center gap-2">
-                                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-300'}`} />
-                                <span className="text-xs text-gray-500">
-                                    {isConnected ? 'En línea' : 'Conectando...'}
-                                </span>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="flex-1 flex flex-col overflow-hidden">
-                            {/* Messages */}
-                            <div className="flex-1 overflow-y-auto space-y-4 mb-4 scrollbar-hide">
-                                {realtimeMessages.length === 0 ? (
-                                    <div className="text-center py-12 text-gray-500">
-                                        No hay mensajes aún. ¡Inicia la conversación!
-                                    </div>
-                                ) : (
-                                    realtimeMessages.map((msg: any) => {
-                                        const isOwn = msg.senderId === user?.id;
-                                        return (
-                                            <div
-                                                key={msg.id}
-                                                className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
-                                            >
-                                                <div
-                                                    className={`max-w-[70%] rounded-2xl px-4 py-3 ${isOwn
-                                                        ? 'bg-indigo-600 text-white rounded-br-md'
-                                                        : 'bg-gray-100 text-gray-900 rounded-bl-md'
-                                                        }`}
-                                                >
-                                                    {!isOwn && (
-                                                        <p className="text-xs font-medium mb-1 opacity-70">
-                                                            {msg.sender?.name}
-                                                        </p>
-                                                    )}
-                                                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                                                    <p className={`text-xs mt-1 ${isOwn ? 'text-indigo-200' : 'text-gray-400'}`}>
-                                                        {formatDateTime(msg.createdAt)}
-                                                    </p>
-                                                </div>
+                                realtimeMessages.map((msg: any) => {
+                                    const isOwn = msg.senderId === user?.id;
+                                    return (
+                                        <div key={msg.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                                            <div className={`max-w-[70%] rounded-2xl px-4 py-3
+                                                ${isOwn
+                                                    ? 'bg-gradient-to-r from-cyan-500 to-cyan-600 text-gray-950 rounded-br-md'
+                                                    : 'bg-white/5 text-white border border-white/10 rounded-bl-md'}`
+                                            }>
+                                                {!isOwn && (
+                                                    <p className="text-xs font-medium mb-1 text-cyan-400">{msg.sender?.name}</p>
+                                                )}
+                                                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                                                <p className={`text-xs mt-1 ${isOwn ? 'text-cyan-900/60' : 'text-white/30'}`}>
+                                                    {formatDateTime(msg.createdAt)}
+                                                </p>
                                             </div>
-                                        );
-                                    })
-                                )}
-                                <div ref={messagesEndRef} />
-                            </div>
-
-                            {/* Typing Indicator */}
-                            {typingUsers.length > 0 && (
-                                <div className="flex items-center gap-2 mb-2 text-sm text-gray-500">
-                                    <div className="flex gap-1">
-                                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                                        <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                                    </div>
-                                    <span>{typingUsers.map(u => u.userName).join(', ')} está escribiendo...</span>
-                                </div>
+                                        </div>
+                                    );
+                                })
                             )}
+                            <div ref={messagesEndRef} />
+                        </div>
 
-                            {/* Message Input */}
-                            <div className="flex gap-2">
-                                <Textarea
-                                    value={message}
-                                    onChange={(e) => {
-                                        setMessage(e.target.value);
-                                        setTyping(e.target.value.length > 0);
-                                    }}
-                                    onBlur={() => setTyping(false)}
-                                    placeholder="Escribe un mensaje..."
-                                    className="min-h-[60px] resize-none"
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && !e.shiftKey) {
-                                            e.preventDefault();
-                                            if (message.trim() && isConnected) {
-                                                sendSocketMessage(message.trim());
-                                                setMessage('');
-                                                setTyping(false);
-                                            }
-                                        }
-                                    }}
-                                />
-                                <Button
-                                    disabled={!message.trim() || !isConnected}
-                                    onClick={() => {
+                        {/* Typing Indicator */}
+                        {typingUsers.length > 0 && (
+                            <div className="flex items-center gap-2 mb-2 text-sm text-white/40">
+                                <div className="flex gap-1">
+                                    <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                    <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                    <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                </div>
+                                <span>{typingUsers.map(u => u.userName).join(', ')} está escribiendo...</span>
+                            </div>
+                        )}
+
+                        {/* Message Input */}
+                        <div className="flex gap-3">
+                            <textarea
+                                value={message}
+                                onChange={(e) => {
+                                    setMessage(e.target.value);
+                                    setTyping(e.target.value.length > 0);
+                                }}
+                                onBlur={() => setTyping(false)}
+                                placeholder="Escribe un mensaje..."
+                                className="input-luxury min-h-[60px] resize-none flex-1"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
                                         if (message.trim() && isConnected) {
                                             sendSocketMessage(message.trim());
                                             setMessage('');
                                             setTyping(false);
                                         }
-                                    }}
-                                >
-                                    <Send className="w-4 h-4" />
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                {/* Files Tab */}
-                <TabsContent value="files">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Archivos del Proyecto</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {/* Upload Zone */}
-                            <div
-                                {...getRootProps()}
-                                className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${isDragActive
-                                    ? 'border-indigo-500 bg-indigo-50'
-                                    : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'
-                                    }`}
+                                    }
+                                }}
+                            />
+                            <button
+                                disabled={!message.trim() || !isConnected}
+                                onClick={() => {
+                                    if (message.trim() && isConnected) {
+                                        sendSocketMessage(message.trim());
+                                        setMessage('');
+                                        setTyping(false);
+                                    }
+                                }}
+                                className="btn-luxury h-[60px] w-[60px] !p-0"
                             >
-                                <input {...getInputProps()} />
-                                {uploadingFile ? (
-                                    <div className="flex flex-col items-center">
-                                        <Loader2 className="w-8 h-8 text-indigo-600 animate-spin mb-3" />
-                                        <p className="text-gray-600">Subiendo archivo...</p>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <Upload className="w-8 h-8 text-gray-400 mx-auto mb-3" />
-                                        <p className="text-gray-600">
-                                            {isDragActive
-                                                ? 'Suelta los archivos aquí'
-                                                : 'Arrastra archivos aquí o haz clic para seleccionar'}
-                                        </p>
-                                        <p className="text-sm text-gray-400 mt-1">Máximo 10MB por archivo</p>
-                                    </>
-                                )}
-                            </div>
+                                <Send className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-                            {/* Files List */}
-                            {project.files?.length > 0 && (
-                                <div className="mt-6 space-y-3">
-                                    {project.files.map((file: any) => {
-                                        const isImage = file.mimeType.startsWith('image/');
-                                        return (
-                                            <div
-                                                key={file.id}
-                                                className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors"
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                                                        {isImage ? (
-                                                            <Image className="w-5 h-5 text-gray-500" />
-                                                        ) : (
-                                                            <File className="w-5 h-5 text-gray-500" />
-                                                        )}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium text-gray-900 text-sm">{file.name}</p>
-                                                        <p className="text-xs text-gray-500">
-                                                            {formatFileSize(file.size)} • {formatDate(file.uploadedAt)}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <a
-                                                        href={`${window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://brieflow.onrender.com'}${file.url}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                    >
-                                                        <Button variant="ghost" size="icon">
-                                                            <Download className="w-4 h-4" />
-                                                        </Button>
-                                                    </a>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => handleDeleteFile(file.id)}
-                                                    >
-                                                        <Trash2 className="w-4 h-4 text-red-500" />
-                                                    </Button>
-                                                </div>
+            {/* Files Tab */}
+            {activeTab === 'files' && (
+                <div className="card-luxury p-8 animate-fade-in">
+                    <h2 className="text-xl font-bold text-white mb-6">Archivos del Proyecto</h2>
+
+                    {/* Upload Zone */}
+                    <div
+                        {...getRootProps()}
+                        className={`border-2 border-dashed rounded-2xl p-10 text-center transition-all cursor-pointer
+                            ${isDragActive
+                                ? 'border-cyan-500 bg-cyan-500/10'
+                                : 'border-white/10 hover:border-cyan-500/50 hover:bg-white/[0.02]'}`}
+                    >
+                        <input {...getInputProps()} />
+                        {uploadingFile ? (
+                            <div className="flex flex-col items-center">
+                                <Loader2 className="w-10 h-10 text-cyan-400 animate-spin mb-3" />
+                                <p className="text-white/60">Subiendo archivo...</p>
+                            </div>
+                        ) : (
+                            <>
+                                <Upload className="w-10 h-10 text-white/30 mx-auto mb-3" />
+                                <p className="text-white/60">
+                                    {isDragActive ? 'Suelta los archivos aquí' : 'Arrastra archivos aquí o haz clic para seleccionar'}
+                                </p>
+                                <p className="text-sm text-white/30 mt-1">Máximo 10MB por archivo</p>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Files List */}
+                    {project.files?.length > 0 && (
+                        <div className="mt-8 space-y-3">
+                            {project.files.map((file: any) => {
+                                const isImage = file.mimeType.startsWith('image/');
+                                return (
+                                    <div
+                                        key={file.id}
+                                        className="flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:border-cyan-500/30 transition-colors"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                                                {isImage ? <Image className="w-5 h-5 text-cyan-400" /> : <File className="w-5 h-5 text-cyan-400" />}
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+                                            <div>
+                                                <p className="font-medium text-white text-sm">{file.name}</p>
+                                                <p className="text-xs text-white/40">
+                                                    {formatFileSize(file.size)} • {formatDate(file.uploadedAt)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <a
+                                                href={`${window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://brieflow.onrender.com'}${file.url}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="p-2.5 rounded-lg text-white/50 hover:text-cyan-400 hover:bg-cyan-500/10 transition-colors"
+                                            >
+                                                <Download className="w-5 h-5" />
+                                            </a>
+                                            <button
+                                                onClick={() => handleDeleteFile(file.id)}
+                                                className="p-2.5 rounded-lg text-white/50 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                                            >
+                                                <Trash2 className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

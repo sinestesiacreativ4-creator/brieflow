@@ -10,7 +10,6 @@ import {
     ArrowRight,
     Clock,
     Filter,
-    Sparkles,
 } from 'lucide-react';
 
 const PROJECT_TYPES = [
@@ -150,8 +149,8 @@ export default function ProjectsPage() {
                 </div>
             ) : filteredProjects.length === 0 ? (
                 <div className="card-luxury p-16 text-center">
-                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 border border-amber-500/20 flex items-center justify-center mx-auto mb-6">
-                        <FolderKanban className="w-10 h-10 text-amber-400" />
+                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-500/20 flex items-center justify-center mx-auto mb-6">
+                        <FolderKanban className="w-10 h-10 text-cyan-400" />
                     </div>
                     <h3 className="text-xl font-semibold text-white mb-2">
                         No se encontraron proyectos
@@ -177,14 +176,14 @@ export default function ProjectsPage() {
                             className="block animate-fade-in"
                             style={{ animationDelay: `${index * 50}ms` }}
                         >
-                            <div className="card-luxury p-5 group hover:border-amber-500/30 transition-all">
+                            <div className="card-luxury p-5 group hover:border-cyan-500/30 transition-all">
                                 <div className="flex flex-col items-start sm:flex-row sm:items-center justify-between gap-4">
                                     <div className="flex items-center gap-4 min-w-0 flex-1">
-                                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-500/20 flex items-center justify-center group-hover:from-amber-500/20 group-hover:to-amber-500/5 group-hover:border-amber-500/20 transition-all flex-shrink-0">
-                                            <FolderKanban className="w-6 h-6 text-cyan-400 group-hover:text-amber-400 transition-colors" />
+                                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-500/20 flex items-center justify-center group-hover:from-cyan-500/30 group-hover:to-cyan-500/10 group-hover:border-cyan-500/40 transition-all flex-shrink-0">
+                                            <FolderKanban className="w-6 h-6 text-cyan-400" />
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <h3 className="font-semibold text-white group-hover:text-amber-400 transition-colors truncate text-lg">
+                                            <h3 className="font-semibold text-white group-hover:text-cyan-400 transition-colors truncate text-lg">
                                                 {project.name}
                                             </h3>
                                             <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1 text-sm text-white/40">
@@ -200,7 +199,7 @@ export default function ProjectsPage() {
                                             <Clock className="w-4 h-4" />
                                             {formatDate(project.createdAt)}
                                         </div>
-                                        <ArrowRight className="w-5 h-5 text-white/20 group-hover:text-amber-400 transition-colors" />
+                                        <ArrowRight className="w-5 h-5 text-white/20 group-hover:text-cyan-400 transition-colors" />
                                     </div>
                                 </div>
                             </div>

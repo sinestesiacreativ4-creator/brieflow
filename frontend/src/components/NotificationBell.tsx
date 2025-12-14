@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Bell, Check } from 'lucide-react';
-import api from '@/lib/api';
-import { io, Socket } from 'socket.io-client';
+import { notificationsApi } from '@/lib/api';
+import { io } from 'socket.io-client';
 import { useAuthStore } from '@/lib/auth';
 
 interface Notification {
@@ -14,9 +14,8 @@ interface Notification {
     createdAt: string;
 }
 
-const SOCKET_URL = window.location.hostname === 'localhost'
-    ? 'http://localhost:3001'
-    : 'https://brieflow.onrender.com';
+const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+const SOCKET_URL = isProduction ? 'https://brieflow.onrender.com' : 'http://localhost:3001';
 
 function formatTimeAgo(dateStr: string) {
     const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
@@ -32,7 +31,9 @@ function getNotificationIcon(type: string) {
         case 'NEW_MESSAGE': return '💬';
         case 'BRIEF_APPROVED': return '🎉';
         case 'CHANGES_REQUESTED': return '🔄';
-        case 'STATUS_CHANGED': return '📊';
+        case 'STATUS_CHANGED':
+        case 'STATUS_CHANGE':
+            return '📊';
         default: return '🔔';
     }
 }
@@ -44,15 +45,14 @@ export function NotificationBell() {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const socketRef = useRef<Socket | null>(null);
 
-    // Fetch notifications
     const fetchNotifications = async () => {
         try {
             setLoading(true);
-            const response = await api.get('/notifications');
-            setNotifications(response.data.notifications || []);
-            setUnreadCount(response.data.unreadCount || 0);
+            const response = await notificationsApi.getAll();
+            const data = response.data as { notifications?: Notification[]; unreadCount?: number };
+            setNotifications(data.notifications || []);
+            setUnreadCount(data.unreadCount || 0);
         } catch (error) {
             console.error('Error fetching notifications:', error);
         } finally {
@@ -60,7 +60,6 @@ export function NotificationBell() {
         }
     };
 
-    // Setup socket connection
     useEffect(() => {
         if (!token || !user?.id) return;
 
@@ -70,23 +69,11 @@ export function NotificationBell() {
 
         socket.on('connect', () => {
             console.log('🔔 Notification socket connected');
-            socket.emit('join', `user_${user.id}`);
         });
 
-        socket.on('new_notification', (notification: Notification) => {
-            setNotifications(prev => [notification, ...prev]);
-            setUnreadCount(prev => prev + 1);
-
-            // Browser notification if permitted
-            if (Notification.permission === 'granted') {
-                new window.Notification(notification.title, {
-                    body: notification.message,
-                    icon: '/logo.png'
-                });
-            }
+        socket.on('notification', () => {
+            fetchNotifications();
         });
-
-        socketRef.current = socket;
 
         return () => {
             socket.disconnect();
@@ -114,7 +101,7 @@ export function NotificationBell() {
 
     const markAsRead = async (notificationId: string) => {
         try {
-            await api.patch(`/notifications/${notificationId}/read`);
+            await notificationsApi.markAsRead(notificationId);
             setNotifications(prev =>
                 prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
             );
@@ -126,7 +113,7 @@ export function NotificationBell() {
 
     const markAllAsRead = async () => {
         try {
-            await api.post('/notifications/mark-all-read');
+            await notificationsApi.markAllAsRead();
             setNotifications(prev => prev.map(n => ({ ...n, read: true })));
             setUnreadCount(0);
         } catch (error) {
