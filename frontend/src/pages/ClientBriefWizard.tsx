@@ -613,7 +613,7 @@ export default function ClientBriefWizard() {
                 </div>
 
                 {/* Form Card */}
-                <Card className="animate-fade-in">
+                <Card className="animate-fade-in bg-gray-900/50 border-white/10">
                     {/* Sections Header */}
                     <CardHeader>
                         <CardTitle>{currentStepConfig?.title}</CardTitle>
@@ -641,13 +641,14 @@ export default function ClientBriefWizard() {
                                             <Input
                                                 {...register(field.name)}
                                                 placeholder={field.placeholder}
+                                                className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
                                             />
                                         )}
                                         {field.type === 'textarea' && (
                                             <Textarea
                                                 {...register(field.name)}
                                                 placeholder={field.placeholder}
-                                                className="min-h-[120px]"
+                                                className="min-h-[120px] bg-white/5 border-white/10 text-white placeholder:text-white/30"
                                             />
                                         )}
                                         {field.type === 'select' && field.options && (
@@ -655,7 +656,7 @@ export default function ClientBriefWizard() {
                                                 value={watch(field.name)}
                                                 onValueChange={(v) => setValue(field.name, v)}
                                             >
-                                                <SelectTrigger>
+                                                <SelectTrigger className="bg-white/5 border-white/10 text-white">
                                                     <SelectValue placeholder={field.placeholder} />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -773,7 +774,7 @@ export default function ClientBriefWizard() {
                                         value={watch('budget')}
                                         onValueChange={(v) => setValue('budget', v)}
                                     >
-                                        <SelectTrigger>
+                                        <SelectTrigger className="bg-white/5 border-white/10 text-white">
                                             <SelectValue placeholder="Selecciona un rango" />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -793,6 +794,7 @@ export default function ClientBriefWizard() {
                                     <Input
                                         {...register('timeline')}
                                         placeholder="Ej: 4 semanas, 2 meses..."
+                                        className="bg-white/5 border-white/10 text-white placeholder:text-white/30"
                                     />
                                 </div>
                             </>
@@ -808,18 +810,18 @@ export default function ClientBriefWizard() {
                                     <Textarea
                                         {...register('additionalNotes')}
                                         placeholder="¿Hay algo más que debamos saber?"
-                                        className="min-h-[100px]"
+                                        className="min-h-[100px] bg-white/5 border-white/10 text-white placeholder:text-white/30"
                                     />
                                 </div>
 
                                 {files.length > 0 && (
-                                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                                        <p className="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
+                                    <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                                        <p className="text-sm font-medium text-white mb-3 flex items-center gap-2">
                                             <Upload className="w-4 h-4" /> Archivos adjuntos
                                         </p>
                                         <div className="flex flex-wrap gap-2">
                                             {files.map((f, i) => (
-                                                <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-gray-200 text-sm text-gray-600">
+                                                <div key={i} className="flex items-center gap-2 px-3 py-1.5 bg-gray-800 rounded-lg border border-white/10 text-sm text-white/70">
                                                     <File className="w-3 h-3" />
                                                     {f.name}
                                                 </div>
