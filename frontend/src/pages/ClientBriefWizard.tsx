@@ -526,10 +526,10 @@ export default function ClientBriefWizard() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-amber-50/30 flex items-center justify-center">
+            <div className="min-h-screen bg-[#050507] flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-                    <p className="text-gray-500">Cargando...</p>
+                    <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" />
+                    <p className="text-white/50">Cargando...</p>
                 </div>
             </div>
         );
@@ -544,17 +544,17 @@ export default function ClientBriefWizard() {
     const isDeliverablesStep = currentStepConfig?.title === 'Entregables';
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-amber-50/30">
+        <div className="min-h-screen bg-[#050507]">
             {/* Header */}
-            <header className="bg-white/80 backdrop-blur-xl border-b border-gray-100 sticky top-0 z-10">
+            <header className="bg-gray-950/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-10">
                 <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
                     <Link to="/dashboard" className="flex items-center gap-3">
                         <img src="/logo.png" alt="BriefFlow" className="w-8 h-8 rounded-lg" />
-                        <span className="font-bold text-gray-900">{agency?.name}</span>
+                        <span className="font-bold text-white">{agency?.name}</span>
                     </Link>
 
-                    <div className="text-sm text-gray-500 flex items-center gap-2">
-                        {saving && <span className="text-blue-600 animate-pulse">Guardando...</span>}
+                    <div className="text-sm text-white/50 flex items-center gap-2">
+                        {saving && <span className="text-cyan-400 animate-pulse">Guardando...</span>}
                         <span>Paso {step} de {config.steps.length}</span>
                     </div>
                 </div>
@@ -569,18 +569,18 @@ export default function ClientBriefWizard() {
                     <div className="flex justify-between mt-4">
                         {config.steps.map((s) => {
                             const StepIcon = s.icon;
-                            let stepColor = 'text-gray-400';
-                            let iconBg = 'bg-gray-100';
-                            let iconText = 'text-gray-400';
+                            let stepColor = 'text-white/40';
+                            let iconBg = 'bg-white/5';
+                            let iconText = 'text-white/40';
 
                             if (step > s.id) {
-                                stepColor = 'text-blue-600';
-                                iconBg = 'bg-blue-600';
-                                iconText = 'text-white';
+                                stepColor = 'text-cyan-400';
+                                iconBg = 'bg-cyan-500';
+                                iconText = 'text-black';
                             } else if (step === s.id) {
-                                stepColor = 'text-blue-600';
-                                iconBg = 'bg-blue-100 ring-2 ring-blue-600';
-                                iconText = 'text-blue-600';
+                                stepColor = 'text-cyan-400';
+                                iconBg = 'bg-cyan-500/20 ring-2 ring-cyan-500';
+                                iconText = 'text-cyan-400';
                             }
 
                             return (
@@ -602,14 +602,14 @@ export default function ClientBriefWizard() {
 
                 {/* Project Title */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 mb-4">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-4">
                         <div className={`w-6 h-6 rounded-lg bg-gradient-to-br ${config.color} flex items-center justify-center text-white`}>
                             <Icon className="w-4 h-4" />
                         </div>
-                        <span className="text-sm font-medium text-gray-700">{project?.type?.replace(/_/g, ' ')}</span>
+                        <span className="text-sm font-medium text-white/70">{project?.type?.replace(/_/g, ' ')}</span>
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">Brief: {project?.name}</h1>
-                    <p className="text-gray-500 mt-1">Completa la información para iniciar tu proyecto</p>
+                    <h1 className="text-2xl font-bold text-white">Brief: {project?.name}</h1>
+                    <p className="text-white/50 mt-1">Completa la información para iniciar tu proyecto</p>
                 </div>
 
                 {/* Form Card */}
@@ -634,7 +634,7 @@ export default function ClientBriefWizard() {
                             <>
                                 {config.fields[step].map((field) => (
                                     <div key={field.name}>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        <label className="block text-sm font-medium text-white/70 mb-2">
                                             {field.label}
                                         </label>
                                         {field.type === 'input' && (
@@ -676,7 +676,7 @@ export default function ClientBriefWizard() {
                                 <div
                                     onDragOver={(e) => e.preventDefault()}
                                     onDrop={handleFileDrop}
-                                    className="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:bg-gray-50 transition-colors cursor-pointer relative"
+                                    className="border-2 border-dashed border-cyan-500/30 rounded-2xl p-8 text-center hover:bg-cyan-500/5 transition-colors cursor-pointer relative"
                                 >
                                     <input
                                         type="file"
@@ -684,13 +684,13 @@ export default function ClientBriefWizard() {
                                         onChange={handleFileSelect}
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                     />
-                                    <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <Upload className="w-8 h-8 text-blue-500" />
+                                    <div className="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Upload className="w-8 h-8 text-cyan-400" />
                                     </div>
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                    <h3 className="text-lg font-semibold text-white mb-2">
                                         Arrastra tus archivos aquí
                                     </h3>
-                                    <p className="text-gray-500 text-sm max-w-sm mx-auto mb-4">
+                                    <p className="text-white/50 text-sm max-w-sm mx-auto mb-4">
                                         Sube imágenes de referencia, manuales de marca (PDF), logos (SVG, PNG) o cualquier documento relevante.
                                     </p>
                                     <Button variant="outline" type="button">
@@ -700,27 +700,27 @@ export default function ClientBriefWizard() {
 
                                 {files.length > 0 && (
                                     <div className="space-y-3">
-                                        <h4 className="font-medium text-gray-900">Archivos seleccionados ({files.length})</h4>
+                                        <h4 className="font-medium text-white">Archivos seleccionados ({files.length})</h4>
                                         {files.map((file, index) => (
-                                            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                            <div key={index} className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/10">
                                                 <div className="flex items-center gap-3 overflow-hidden">
-                                                    <div className="w-10 h-10 rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0">
+                                                    <div className="w-10 h-10 rounded-lg bg-gray-900 border border-white/10 flex items-center justify-center flex-shrink-0">
                                                         {file.type.startsWith('image/') ? (
-                                                            <ImageIcon className="w-5 h-5 text-purple-500" />
+                                                            <ImageIcon className="w-5 h-5 text-purple-400" />
                                                         ) : (
-                                                            <File className="w-5 h-5 text-blue-500" />
+                                                            <File className="w-5 h-5 text-cyan-400" />
                                                         )}
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
-                                                        <p className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                                                        <p className="text-sm font-medium text-white truncate">{file.name}</p>
+                                                        <p className="text-xs text-white/50">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                                                     </div>
                                                 </div>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => removeFile(index)}
-                                                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
                                                 >
                                                     <X className="w-4 h-4" />
                                                 </Button>
@@ -729,7 +729,7 @@ export default function ClientBriefWizard() {
                                     </div>
                                 )}
 
-                                <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 text-sm text-amber-800">
+                                <div className="p-4 bg-amber-500/10 rounded-xl border border-amber-500/20 text-sm text-amber-300">
                                     <p className="flex items-center gap-2 font-medium mb-1">
                                         <FileText className="w-4 h-4" /> Note sobre privacidad
                                     </p>
@@ -742,7 +742,7 @@ export default function ClientBriefWizard() {
                         {isDeliverablesStep && (
                             <>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    <label className="block text-sm font-medium text-white/70 mb-3">
                                         ¿Qué entregables necesitas?
                                     </label>
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -752,8 +752,8 @@ export default function ClientBriefWizard() {
                                                 type="button"
                                                 onClick={() => toggleDeliverable(item)}
                                                 className={`p-3 rounded-xl border text-sm font-medium transition-all text-left ${selectedDeliverables.includes(item)
-                                                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                                                    : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                                                    ? 'border-cyan-500 bg-cyan-500/10 text-cyan-300'
+                                                    : 'border-white/10 hover:border-white/20 text-white/70'
                                                     }`}
                                             >
                                                 {selectedDeliverables.includes(item) && (
@@ -766,7 +766,7 @@ export default function ClientBriefWizard() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-medium text-white/70 mb-2">
                                         Presupuesto estimado
                                     </label>
                                     <Select
@@ -787,7 +787,7 @@ export default function ClientBriefWizard() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-medium text-white/70 mb-2">
                                         Timeline deseado
                                     </label>
                                     <Input
@@ -802,7 +802,7 @@ export default function ClientBriefWizard() {
                         {isLastStep && (
                             <>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-medium text-white/70 mb-2">
                                         Notas adicionales (opcional)
                                     </label>
                                     <Textarea
