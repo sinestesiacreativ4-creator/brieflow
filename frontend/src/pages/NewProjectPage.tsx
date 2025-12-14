@@ -75,13 +75,11 @@ export default function NewProjectPage() {
 
         setLoading(true);
         try {
+            // Solo enviar campos que el backend acepta: name, type, clientId
             const response = await projectsApi.create({
                 name: formData.name,
                 type: formData.type,
-                clientId: formData.clientId,
-                description: formData.description,
-                deadline: formData.deadline ? new Date(formData.deadline).toISOString() : undefined,
-                status: 'BRIEFING'
+                clientId: formData.clientId
             });
 
             navigate(`/projects/${response.data.id}`);
