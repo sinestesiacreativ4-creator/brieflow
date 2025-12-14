@@ -147,7 +147,8 @@ export function usePushNotifications() {
         console.log('[Push] Sending test notification for user:', user.id);
 
         try {
-            const response = await api.post('/test-push-direct', { userId: user.id });
+            // Use the authenticated test route
+            const response = await api.post('/notifications/test');
             console.log('[Push] Test notification response:', response.data);
             return response.data;
         } catch (error: any) {

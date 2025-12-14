@@ -9,7 +9,14 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'logo.png'],
+      workbox: {
+        // Don't precache sw.js - we handle it manually
+        navigateFallbackDenylist: [/^\/sw\.js$/],
+        // Skip waiting to activate new service worker immediately
+        skipWaiting: true,
+        clientsClaim: true,
+      },
       manifest: {
         name: 'BriefFlow - Gestión de Agencia',
         short_name: 'BriefFlow',
@@ -18,18 +25,24 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
+        start_url: '/',
         icons: [
           {
             src: 'logo.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
           },
           {
             src: 'logo.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
           }
         ]
+      },
+      devOptions: {
+        enabled: false // Disable PWA in dev mode to avoid conflicts
       }
     })
   ],
@@ -48,3 +61,4 @@ export default defineConfig({
     },
   },
 })
+
