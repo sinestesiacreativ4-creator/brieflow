@@ -1,30 +1,27 @@
 import { Link } from 'react-router-dom';
 import {
-    Zap,
-    CheckCircle2,
     ArrowRight,
     Layout,
     Clock,
     Shield,
-    Users,
     MessageSquare,
-    Play
+    Play,
+    Zap,
+    Cpu,
+    Network
 } from 'lucide-react';
+import { NeuralBackground, BriefFlowLogo } from '@/components/VisualEffects';
 
 export default function LandingPage() {
     return (
-        <div className="min-h-screen bg-luxury overflow-x-hidden selection:bg-cyan-500/30 selection:text-cyan-100">
+        <div className="min-h-screen bg-[#050507] overflow-x-hidden selection:bg-cyan-500/30 selection:text-cyan-100 flex flex-col">
             {/* Header / Nav */}
-            <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-gray-950/80 backdrop-blur-xl">
+            <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#050507]/80 backdrop-blur-xl">
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="relative">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-500/20 flex items-center justify-center">
-                                <Zap className="w-5 h-5 text-cyan-400" />
-                            </div>
-                        </div>
+                        <BriefFlowLogo size="md" />
                         <span className="text-xl font-bold text-white tracking-tight">
-                            Brief<span className="text-gradient-cyan">Flow</span>
+                            Brief<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-200">Flow</span>
                         </span>
                     </div>
 
@@ -33,8 +30,12 @@ export default function LandingPage() {
                             Iniciar Sesión
                         </Link>
                         <Link to="/signup">
-                            <button className="btn-luxury px-5 py-2.5 text-sm">
-                                Comenzar Gratis
+                            <button className="relative group overflow-hidden rounded-xl bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-black transition-all hover:bg-cyan-400">
+                                <span className="relative z-10 flex items-center gap-2">
+                                    Comenzar Gratis
+                                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                                </span>
+                                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-0 bg-white/20 transition-transform duration-300" />
                             </button>
                         </Link>
                     </div>
@@ -42,68 +43,63 @@ export default function LandingPage() {
             </header>
 
             {/* Hero Section */}
-            <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-                {/* Background Effects */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
-                    <div className="absolute top-20 left-1/4 w-[600px] h-[600px] bg-cyan-500/[0.04] rounded-full blur-[120px]" />
-                    <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/[0.03] rounded-full blur-[100px]" />
-                </div>
+            <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden flex-1 flex flex-col justify-center min-h-[90vh]">
+                {/* Neural Network Background */}
+                <NeuralBackground />
+
+                {/* Vignette Overlay for readability */}
+                <div className="absolute inset-0 bg-gradient-to-b from-[#050507]/80 via-transparent to-[#050507] z-0 pointer-events-none" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#050507_100%)] z-0 pointer-events-none" />
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 animate-fade-in">
-                        <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                        <span className="text-sm font-medium text-cyan-100/60">Nuevo: Gestión de pagos integrada</span>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/5 border border-cyan-500/20 mb-8 animate-fade-in backdrop-blur-md shadow-[0_0_20px_rgba(6,182,212,0.1)]">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                        </span>
+                        <span className="text-sm font-medium text-cyan-200">IA Neural Core 2.0 Activado</span>
                     </div>
 
-                    <h1 className="text-5xl lg:text-7xl font-bold text-white tracking-tight mb-8 leading-tight max-w-4xl mx-auto animate-fade-in">
-                        Optimiza tu flujo creativo <br />
-                        <span className="text-gradient-cyan">sin fricción.</span>
+                    <h1 className="text-5xl lg:text-7xl font-bold text-white tracking-tight mb-8 leading-[1.1] max-w-5xl mx-auto animate-fade-in shadow-black drop-shadow-2xl">
+                        Gestión Creativa Potenciada por <br className="hidden sm:block" />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-cyan-200 to-cyan-400 animate-gradient-x bg-[length:200%_auto]">Inteligencia Neural</span>
                     </h1>
 
-                    <p className="text-xl text-white/40 mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '100ms' }}>
-                        La plataforma todo en uno para agencias creativas. Gestiona clientes, briefs, feedback y entregas en un solo lugar.
+                    <p className="text-xl text-white/50 mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in drop-shadow-md" style={{ animationDelay: '100ms' }}>
+                        Conecta a tu equipo, clientes y proyectos en una red de productividad sin fricción. La plataforma definitiva para agencias del futuro.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in" style={{ animationDelay: '200ms' }}>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in relative z-20" style={{ animationDelay: '200ms' }}>
                         <Link to="/signup" className="w-full sm:w-auto">
-                            <button className="btn-luxury w-full sm:w-auto px-8 py-4 text-lg group">
-                                <Zap className="w-5 h-5 mr-2 group-hover:text-gray-950 transition-colors" />
-                                Empezar ahora
-                                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                            <button className="relative w-full sm:w-auto px-8 py-4 rounded-xl bg-cyan-500 font-bold text-black text-lg shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] hover:scale-105 transition-all duration-300">
+                                <span className="flex items-center justify-center gap-2">
+                                    <Zap className="w-5 h-5 fill-black" />
+                                    Iniciar Red Neural
+                                </span>
                             </button>
                         </Link>
-                        <button className="btn-secondary-luxury w-full sm:w-auto px-8 py-4 text-lg">
-                            <Play className="w-5 h-5 mr-2 fill-current" />
+                        <button className="w-full sm:w-auto px-8 py-4 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 text-white font-medium text-lg transition-all flex items-center justify-center gap-2">
+                            <Play className="w-5 h-5 fill-current" />
                             Ver Demo
                         </button>
                     </div>
 
-                    {/* Dashboard Preview */}
-                    <div className="mt-20 relative mx-auto max-w-5xl rounded-2xl border border-white/10 bg-gray-900/50 backdrop-blur shadow-2xl overflow-hidden animate-fade-in" style={{ animationDelay: '400ms' }}>
-                        <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/5 to-transparent pointer-events-none" />
-                        <div className="p-2 border-b border-white/5 flex items-center gap-2 bg-gray-950/50">
-                            <div className="flex gap-1.5 ml-2">
-                                <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50" />
-                                <div className="w-3 h-3 rounded-full bg-amber-500/20 border border-amber-500/50" />
-                                <div className="w-3 h-3 rounded-full bg-emerald-500/20 border border-emerald-500/50" />
-                            </div>
-                        </div>
-                        <div className="aspect-[16/9] bg-gray-950 p-6 flex flex-col items-center justify-center text-white/20">
-                            {/* Placeholder for actual dashboard screenshot */}
-                            <Layout className="w-16 h-16 mb-4 opacity-50" />
-                            <p className="text-lg">Dashboard Interactivo</p>
-                        </div>
+                    {/* Tech Stack Visual */}
+                    <div className="mt-24 flex justify-center gap-8 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
+                        <Cpu className="w-10 h-10 animate-pulse text-cyan-500" style={{ animationDelay: '0ms' }} />
+                        <Network className="w-10 h-10 animate-pulse text-purple-500" style={{ animationDelay: '500ms' }} />
+                        <Zap className="w-10 h-10 animate-pulse text-amber-500" style={{ animationDelay: '1000ms' }} />
                     </div>
                 </div>
             </section>
 
             {/* Features Grid */}
-            <section className="py-24 bg-gray-950/50 border-y border-white/5">
+            <section className="py-24 bg-[#050507] border-t border-white/5 relative z-10">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Todo lo que necesitas</h2>
+                        <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Arquitectura de Alto Rendimiento</h2>
                         <p className="text-white/40 max-w-2xl mx-auto">
-                            Herramientas potentes diseñadas específicamente para el flujo de trabajo de agencias modernas.
+                            Sistema diseñado para procesar flujos de trabajo complejos con velocidad de la luz.
                         </p>
                     </div>
 
@@ -111,45 +107,49 @@ export default function LandingPage() {
                         {[
                             {
                                 icon: Layout,
-                                title: 'Gestión de Proyectos',
-                                desc: 'Kanban intuitivo para visualizar el progreso de cada proyecto en tiempo real.'
+                                title: 'Gestión Neural',
+                                desc: 'Kanban inteligente que predice cuellos de botella antes de que ocurran.'
                             },
                             {
                                 icon: MessageSquare,
-                                title: 'Feedback Centralizado',
-                                desc: 'Comentarios precisos sobre diseños y videos. Adiós a los emails interminables.'
+                                title: 'Feedback Sincronizado',
+                                desc: 'Comunicación en tiempo real con latencia cero entre agencia y cliente.'
                             },
                             {
-                                icon: Users,
-                                title: 'Portal de Clientes',
-                                desc: 'Un espacio dedicado para que tus clientes aprueben briefs y entregables.'
+                                icon: Network,
+                                title: 'Portal Interconectado',
+                                desc: 'Nodos de acceso dedicados para que tus clientes aprueben entregas.'
                             },
                             {
                                 icon: Clock,
-                                title: 'Tiempos de Entrega',
-                                desc: 'Seguimiento automático de plazos y notificaciones inteligentes.'
+                                title: 'Cronogramas Cuánticos',
+                                desc: 'Seguimiento preciso de cada milisegundo invertido en tus proyectos.'
                             },
                             {
                                 icon: Shield,
-                                title: 'Seguridad Total',
-                                desc: 'Tus archivos y datos protegidos con encriptación de nivel bancario.'
+                                title: 'Cifrado de Grado Militar',
+                                desc: 'Tus datos protegidos por capas de seguridad impenetrables.'
                             },
                             {
                                 icon: Zap,
-                                title: 'Automatización',
-                                desc: 'Genera contratos, facturas y reportes con un solo clic.'
+                                title: 'Automatización Flash',
+                                desc: 'Genera contratos y facturas a la velocidad del pensamiento.'
                             }
                         ].map((feature, i) => (
-                            <div key={i} className="card-luxury p-8 hover:border-cyan-500/30 group transition-all duration-300">
-                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-transparent border border-cyan-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                                    <feature.icon className="w-7 h-7 text-cyan-400 group-hover:text-cyan-300" />
+                            <div key={i} className="group relative p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-cyan-500/30 transition-all duration-300 overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                                <div className="relative z-10">
+                                    <div className="w-14 h-14 rounded-2xl bg-gray-900 border border-white/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:border-cyan-500/50 group-hover:shadow-[0_0_20px_rgba(6,182,212,0.2)] transition-all duration-300">
+                                        <feature.icon className="w-7 h-7 text-white/50 group-hover:text-cyan-400 transition-colors" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors">
+                                        {feature.title}
+                                    </h3>
+                                    <p className="text-white/40 leading-relaxed group-hover:text-white/60 transition-colors">
+                                        {feature.desc}
+                                    </p>
                                 </div>
-                                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors">
-                                    {feature.title}
-                                </h3>
-                                <p className="text-white/40 leading-relaxed">
-                                    {feature.desc}
-                                </p>
                             </div>
                         ))}
                     </div>
@@ -157,21 +157,21 @@ export default function LandingPage() {
             </section>
 
             {/* Footer */}
-            <footer className="py-12 border-t border-white/5 bg-gray-950">
+            <footer className="py-12 border-t border-white/5 bg-[#030304]">
                 <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/20 flex items-center justify-center">
-                            <Zap className="w-4 h-4 text-cyan-400" />
-                        </div>
-                        <span className="font-bold text-white">BriefFlow</span>
+                        <BriefFlowLogo size="sm" />
+                        <span className="font-bold text-white">
+                            Brief<span className="text-cyan-400">Flow</span>
+                        </span>
                     </div>
                     <p className="text-sm text-white/30">
-                        © 2024 BriefFlow Inc. Todos los derechos reservados.
+                        © 2024 BriefFlow System. Todos los derechos reservados.
                     </p>
                     <div className="flex gap-6">
-                        <a href="#" className="text-white/40 hover:text-cyan-400 transition-colors">Twitter</a>
-                        <a href="#" className="text-white/40 hover:text-cyan-400 transition-colors">LinkedIn</a>
-                        <a href="#" className="text-white/40 hover:text-cyan-400 transition-colors">Instagram</a>
+                        <a href="#" className="text-white/40 hover:text-cyan-400 transition-colors hover:scale-110 transform">X</a>
+                        <a href="#" className="text-white/40 hover:text-cyan-400 transition-colors hover:scale-110 transform">Link</a>
+                        <a href="#" className="text-white/40 hover:text-cyan-400 transition-colors hover:scale-110 transform">Ig</a>
                     </div>
                 </div>
             </footer>
