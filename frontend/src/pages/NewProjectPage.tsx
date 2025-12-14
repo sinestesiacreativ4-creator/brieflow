@@ -46,10 +46,13 @@ export default function NewProjectPage() {
         const loadClients = async () => {
             try {
                 const response = await clientsApi.getAll();
-                // Verificación de seguridad: asegurar que sea un array
                 const data = response.data;
+
+                // La API devuelve { clients: [...], pagination: {...} }
                 if (Array.isArray(data)) {
                     setClients(data);
+                } else if (data && Array.isArray(data.clients)) {
+                    setClients(data.clients);
                 } else if (data && Array.isArray(data.data)) {
                     setClients(data.data);
                 } else {
@@ -142,8 +145,8 @@ export default function NewProjectPage() {
                                             key={type.id}
                                             onClick={() => setFormData({ ...formData, type: type.id })}
                                             className={`flex items-start gap-4 p-4 rounded-xl border text-left transition-all duration-200 group relative overflow-hidden ${formData.type === type.id
-                                                    ? 'bg-cyan-500/10 border-cyan-500 ring-1 ring-cyan-500/50'
-                                                    : 'bg-gray-900/40 border-gray-800 hover:border-gray-700 hover:bg-gray-800/60'
+                                                ? 'bg-cyan-500/10 border-cyan-500 ring-1 ring-cyan-500/50'
+                                                : 'bg-gray-900/40 border-gray-800 hover:border-gray-700 hover:bg-gray-800/60'
                                                 }`}
                                         >
                                             <div className={`p-3 rounded-lg ${type.color}`}>
