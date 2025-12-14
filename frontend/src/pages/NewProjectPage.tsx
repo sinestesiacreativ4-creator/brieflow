@@ -1,12 +1,24 @@
-<option value="" disabled>Selecciona un cliente</option>
-{
-    Array.isArray(clients) && clients.map(client => (
-        <option key={client.id} value={client.id} className="bg-gray-900 text-white">
-            {client.name} ({client.companyName})
-        </option>
-    ))
-}
-                                </select >
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { projectsApi, clientsApi } from '@/lib/api';
+import {
+    Layout,
+    Type,
+    Calendar,
+    Target,
+    Users,
+    ArrowRight,
+    Loader2,
+    CheckCircle2,
+    Globe,
+    PenTool,
+    Megaphone,
+    Video,
+    Package,
+    Share2,
+    MoreHorizontal
+} from 'lucide-react';
+import { useAuthStore } from '@/lib/auth';
 
 const PROJECT_TYPES = [
     { id: 'BRANDING', label: 'Branding', icon: PenTool, desc: 'Identidad de marca, logo, guidelines', color: 'text-purple-400 bg-purple-500/10 border-purple-500/20' },
@@ -135,8 +147,8 @@ export default function NewProjectPage() {
                                             key={type.id}
                                             onClick={() => setFormData({ ...formData, type: type.id })}
                                             className={`flex items-start gap-4 p-4 rounded-xl border text-left transition-all duration-200 group relative overflow-hidden ${formData.type === type.id
-                                                ? 'bg-cyan-500/10 border-cyan-500 ring-1 ring-cyan-500/50'
-                                                : 'bg-gray-900/40 border-gray-800 hover:border-gray-700 hover:bg-gray-800/60'
+                                                    ? 'bg-cyan-500/10 border-cyan-500 ring-1 ring-cyan-500/50'
+                                                    : 'bg-gray-900/40 border-gray-800 hover:border-gray-700 hover:bg-gray-800/60'
                                                 }`}
                                         >
                                             <div className={`p-3 rounded-lg ${type.color}`}>
@@ -187,23 +199,8 @@ export default function NewProjectPage() {
                                     onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
                                     className="input-luxury w-full py-3"
                                 >
-                                    import {useState, useEffect} from 'react';
-                                    import {useNavigate, useSearchParams} from 'react-router-dom';
-                                    import {projectsApi, clientsApi} from '@/lib/api';
-                                    import {
-                                        Calendar,
-                                        ArrowRight,
-                                        Loader2,
-                                        CheckCircle2,
-                                        Globe,
-                                        PenTool,
-                                        Megaphone,
-                                        Video,
-                                        Package,
-                                        Share2,
-                                        MoreHorizontal
-                                    } from 'lucide-react';
-                                    {clients.map(client => (
+                                    <option value="" disabled>Selecciona un cliente</option>
+                                    {Array.isArray(clients) && clients.map(client => (
                                         <option key={client.id} value={client.id} className="bg-gray-900 text-white">
                                             {client.name} ({client.companyName})
                                         </option>
