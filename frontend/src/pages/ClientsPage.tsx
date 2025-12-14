@@ -19,7 +19,6 @@ import {
     Phone,
     FolderKanban,
     Loader2,
-    X,
 } from 'lucide-react';
 
 const clientSchema = z.object({
@@ -123,8 +122,8 @@ export default function ClientsPage() {
                 </div>
             ) : filteredClients.length === 0 ? (
                 <div className="card-luxury p-16 text-center">
-                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-500/20 flex items-center justify-center mx-auto mb-6">
-                        <Users className="w-10 h-10 text-purple-400" />
+                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-500/20 flex items-center justify-center mx-auto mb-6">
+                        <Users className="w-10 h-10 text-cyan-400" />
                     </div>
                     <h3 className="text-xl font-semibold text-white mb-2">
                         {search ? 'No se encontraron clientes' : 'No tienes clientes aún'}
@@ -146,15 +145,15 @@ export default function ClientsPage() {
                     {filteredClients.map((client, index) => (
                         <div
                             key={client.id}
-                            className="card-luxury p-6 hover:border-amber-500/30 transition-all animate-fade-in group"
+                            className="card-luxury p-6 hover:border-cyan-500/30 transition-all animate-fade-in group"
                             style={{ animationDelay: `${index * 50}ms` }}
                         >
                             <div className="flex items-start gap-4">
-                                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-gray-900 font-bold text-xl shadow-lg shadow-amber-500/20">
+                                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center text-gray-950 font-bold text-xl shadow-lg shadow-cyan-500/30">
                                     {client.name.charAt(0).toUpperCase()}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="font-semibold text-white truncate group-hover:text-amber-400 transition-colors">
+                                    <h3 className="font-semibold text-white truncate group-hover:text-cyan-400 transition-colors">
                                         {client.name}
                                     </h3>
                                     <div className="flex items-center gap-1.5 text-sm text-white/50 mt-1">
@@ -188,7 +187,7 @@ export default function ClientsPage() {
 
             {/* Create Client Modal */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="bg-gray-900 border-white/10">
+                <DialogContent className="bg-gray-950 border-cyan-500/20">
                     <DialogHeader>
                         <DialogTitle className="text-white">Invitar Cliente</DialogTitle>
                         <DialogDescription className="text-white/50">

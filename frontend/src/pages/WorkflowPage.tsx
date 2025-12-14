@@ -18,11 +18,10 @@ import {
     Rocket,
     Lightbulb,
     Layers,
-    BookOpen
+    BookOpen,
+    Zap,
 } from 'lucide-react';
 import { projectsApi } from '@/lib/api';
-
-type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE';
 
 interface KanbanColumn {
     id: 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE';
@@ -84,7 +83,7 @@ export default function WorkflowPage() {
         }
     };
 
-    const handleDragLeave = (e: React.DragEvent) => {
+    const handleDragLeave = () => {
         setDragOverColumn(null);
     };
 
@@ -218,7 +217,7 @@ export default function WorkflowPage() {
                             onClick={() => setActiveTypeView(type.id)}
                             className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap
                                 ${activeTypeView === type.id
-                                    ? 'bg-gradient-to-r from-amber-500/20 to-amber-500/10 text-amber-400 border border-amber-500/30'
+                                    ? 'bg-gradient-to-r from-cyan-500/20 to-cyan-500/10 text-cyan-400 border border-cyan-500/30'
                                     : 'bg-white/5 text-white/50 hover:text-white/80 border border-white/10 hover:border-white/20'}
                             `}
                         >
@@ -254,7 +253,7 @@ export default function WorkflowPage() {
                                 <div
                                     key={col.id}
                                     className={`flex-shrink-0 w-full lg:w-80 flex flex-col h-auto lg:h-full transition-all duration-200 rounded-xl
-                                        ${isDragOver ? 'bg-amber-500/10 ring-2 ring-amber-500/30' : ''}
+                                        ${isDragOver ? 'bg-cyan-500/10 ring-2 ring-cyan-500/30' : ''}
                                     `}
                                     onDragOver={(e) => handleDragOver(e, col.id)}
                                     onDragLeave={handleDragLeave}
@@ -285,7 +284,7 @@ export default function WorkflowPage() {
                                                 onDragStart={(e) => handleDragStart(e, project.id)}
                                                 onClick={() => window.location.href = `/projects/${project.id}`}
                                                 className={`group card-luxury p-4 cursor-grab active:cursor-grabbing select-none animate-fade-in
-                                                    ${draggingId === project.id ? 'opacity-40 rotate-1 scale-95' : 'hover:border-amber-500/30'}
+                                                    ${draggingId === project.id ? 'opacity-40 rotate-1 scale-95' : 'hover:border-cyan-500/30'}
                                                 `}
                                                 style={{ animationDelay: `${index * 50}ms` }}
                                             >
@@ -307,7 +306,7 @@ export default function WorkflowPage() {
                                                     </button>
                                                 </div>
 
-                                                <h3 className="font-semibold text-white mb-1 leading-tight line-clamp-2 group-hover:text-amber-400 transition-colors">
+                                                <h3 className="font-semibold text-white mb-1 leading-tight line-clamp-2 group-hover:text-cyan-400 transition-colors">
                                                     {project.name || 'Proyecto sin nombre'}
                                                 </h3>
 
@@ -323,13 +322,13 @@ export default function WorkflowPage() {
                                                             {formatDate(project.createdAt)}
                                                         </span>
                                                         {(project._count?.messages > 0) && (
-                                                            <span className="flex items-center gap-1 text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">
+                                                            <span className="flex items-center gap-1 text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded">
                                                                 <MessageSquare className="w-3 h-3" />
                                                                 {project._count.messages}
                                                             </span>
                                                         )}
                                                         {(project._count?.files > 0) && (
-                                                            <span className="flex items-center gap-1 text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded">
+                                                            <span className="flex items-center gap-1 text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded">
                                                                 <Paperclip className="w-3 h-3" />
                                                                 {project._count.files}
                                                             </span>
@@ -337,7 +336,7 @@ export default function WorkflowPage() {
                                                     </div>
 
                                                     {/* Avatar */}
-                                                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-[9px] font-bold text-gray-900">
+                                                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 flex items-center justify-center text-[9px] font-bold text-gray-950">
                                                         {project.assignedTo ? project.assignedTo.name.charAt(0) : (project.client?.name?.charAt(0) || '?')}
                                                     </div>
                                                 </div>
@@ -347,7 +346,7 @@ export default function WorkflowPage() {
                                         {/* Add Card Button */}
                                         <button
                                             onClick={() => window.location.href = '/projects/new'}
-                                            className="w-full py-3 flex items-center justify-center gap-2 text-sm text-white/30 hover:text-white/60 hover:bg-white/5 rounded-xl border border-dashed border-white/10 hover:border-white/20 transition-all"
+                                            className="w-full py-3 flex items-center justify-center gap-2 text-sm text-white/30 hover:text-cyan-400 hover:bg-cyan-500/5 rounded-xl border border-dashed border-white/10 hover:border-cyan-500/30 transition-all"
                                         >
                                             <Plus className="w-4 h-4" />
                                             Añadir tarjeta

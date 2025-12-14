@@ -123,8 +123,8 @@ export default function TeamPage() {
                 </div>
             ) : members.length === 0 ? (
                 <div className="card-luxury p-16 text-center">
-                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-500/20 flex items-center justify-center mx-auto mb-6">
-                        <UserCircle className="w-10 h-10 text-purple-400" />
+                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-500/20 flex items-center justify-center mx-auto mb-6">
+                        <UserCircle className="w-10 h-10 text-cyan-400" />
                     </div>
                     <h3 className="text-xl font-semibold text-white mb-2">
                         Sin miembros de equipo
@@ -144,7 +144,7 @@ export default function TeamPage() {
                     {members.map((member, index) => (
                         <div
                             key={member.id}
-                            className="card-luxury p-6 hover:border-amber-500/30 transition-all animate-fade-in group"
+                            className="card-luxury p-6 hover:border-cyan-500/30 transition-all animate-fade-in group"
                             style={{ animationDelay: `${index * 50}ms` }}
                         >
                             <div className="flex items-center justify-between">
@@ -154,14 +154,14 @@ export default function TeamPage() {
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <h3 className="font-semibold text-white group-hover:text-amber-400 transition-colors">
+                                            <h3 className="font-semibold text-white group-hover:text-cyan-400 transition-colors">
                                                 {member.name}
                                             </h3>
                                             {member.role === 'AGENCY_ADMIN' && (
                                                 <Crown className="w-4 h-4 text-amber-400" />
                                             )}
                                             {member.id === user?.id && (
-                                                <span className="badge-gold text-xs">Tú</span>
+                                                <span className="badge-cyan text-xs">Tú</span>
                                             )}
                                         </div>
                                         <div className="flex flex-wrap items-center gap-3 text-sm text-white/40 mt-1">
@@ -198,7 +198,7 @@ export default function TeamPage() {
 
             {/* Invite Member Modal */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="bg-gray-900 border-white/10">
+                <DialogContent className="bg-gray-950 border-cyan-500/20">
                     <DialogHeader>
                         <DialogTitle className="text-white">Invitar Miembro</DialogTitle>
                         <DialogDescription className="text-white/50">

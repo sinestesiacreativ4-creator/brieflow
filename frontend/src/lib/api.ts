@@ -72,6 +72,11 @@ export const dashboardApi = {
     getStatusDistribution: () => api.get('/dashboard/status-distribution'),
 };
 
+export const statsApi = {
+    getDashboard: () => api.get('/dashboard/metrics'),
+    getStatusDistribution: () => api.get('/dashboard/status-distribution'),
+};
+
 export const filesApi = {
     getByProject: (projectId: string) => api.get(`/files/project/${projectId}`),
     upload: (projectId: string, file: File) => {
