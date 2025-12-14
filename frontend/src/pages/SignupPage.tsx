@@ -1,233 +1,246 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/lib/auth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ArrowLeft, Mail, Lock, User, Building, Globe } from 'lucide-react';
-
-const signupSchema = z.object({
-    agencyName: z.string().min(2, 'El nombre de la agencia debe tener al menos 2 caracteres'),
-    subdomain: z
-        .string()
-        .min(3, 'El subdominio debe tener al menos 3 caracteres')
-        .regex(/^[a-z0-9-]+$/, 'Solo letras minúsculas, números y guiones'),
-    name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-    email: z.string().email('Email inválido'),
-    password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
-    confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-    message: 'Las contraseñas no coinciden',
-    path: ['confirmPassword'],
-});
-
-type SignupFormData = z.infer<typeof signupSchema>;
+import { authApi } from '@/lib/api';
+import {
+    Zap,
+    Loader2,
+    Building2,
+    User,
+    Mail,
+    Lock,
+    Globe,
+    ArrowLeft,
+} from 'lucide-react';
 
 export default function SignupPage() {
     const navigate = useNavigate();
-    const { signup } = useAuthStore();
+    const { setAuth } = useAuthStore();
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
 
-    const {
-        register,
-        handleSubmit,
-        watch,
-        formState: { errors },
-    } = useForm<SignupFormData>({
-        resolver: zodResolver(signupSchema),
+    const [formData, setFormData] = useState({
+        agencyName: '',
+        subdomain: '',
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
     });
 
-    const subdomain = watch('subdomain');
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        });
+    };
 
-    const onSubmit = async (data: SignupFormData) => {
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
         setError('');
-        setIsLoading(true);
+
+        if (formData.password !== formData.confirmPassword) {
+            setError('Las contraseñas no coinciden');
+            return;
+        }
+
+        setLoading(true);
 
         try {
-            await signup({
-                agencyName: data.agencyName,
-                subdomain: data.subdomain,
-                name: data.name,
-                email: data.email,
-                password: data.password,
+            const response = await authApi.register({
+                agencyName: formData.agencyName,
+                subdomain: formData.subdomain,
+                name: formData.name,
+                email: formData.email,
+                password: formData.password,
             });
+
+            const { token, user, agency } = response.data;
+            setAuth(token, user, agency);
             navigate('/dashboard');
         } catch (err: any) {
-            setError(err.message || 'Error al crear la cuenta');
+            setError(err.response?.data?.error || 'Error al crear la cuenta');
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-amber-50/30 flex flex-col">
-            {/* Header */}
-            <header className="p-6">
-                <Link to="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
-                    <ArrowLeft className="w-4 h-4" />
-                    Volver al inicio
-                </Link>
-            </header>
+        <div className="min-h-screen bg-luxury flex items-center justify-center p-4 relative overflow-hidden">
+            {/* Ambient light effects */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-cyan-500/[0.04] rounded-full blur-[120px]" />
+                <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/[0.03] rounded-full blur-[100px]" />
+            </div>
 
-            {/* Main Content */}
-            <main className="flex-1 flex items-center justify-center px-4 py-12">
-                <div className="w-full max-w-md">
-                    {/* Logo */}
-                    <div className="text-center mb-8">
-                        <Link to="/" className="inline-flex items-center gap-2">
-                            <img src="/logo.png" alt="BriefFlow" className="w-12 h-12 rounded-xl shadow-lg shadow-blue-500/20" />
-                        </Link>
-                        <h1 className="mt-6 text-2xl font-bold text-gray-900">
-                            Crea tu agencia
-                        </h1>
-                        <p className="mt-2 text-gray-600">
-                            Empieza tu prueba gratis de 14 días
-                        </p>
-                    </div>
+            {/* Back button */}
+            <button
+                onClick={() => navigate('/')}
+                className="absolute top-8 left-8 flex items-center gap-2 text-white/40 hover:text-cyan-400 transition-colors z-20 md:hidden"
+            >
+                <ArrowLeft className="w-4 h-4" />
+                Volver
+            </button>
 
-                    {/* Form Card */}
-                    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8">
-                        {error && (
-                            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
-                                {error}
+            <div className="w-full max-w-lg relative z-10 animate-fade-in my-8">
+                {/* Logo */}
+                <div className="text-center mb-10">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                        <div className="relative">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-transparent border border-cyan-500/20 flex items-center justify-center shadow-lg shadow-cyan-500/10 backdrop-blur-sm">
+                                <Zap className="w-8 h-8 text-cyan-400" />
                             </div>
-                        )}
-
-                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Nombre de tu agencia</label>
-                                <div className="relative">
-                                    <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    <Input
-                                        {...register('agencyName')}
-                                        placeholder="Mi Agencia Creativa"
-                                        className="pl-12"
-                                        error={errors.agencyName?.message}
-                                    />
-                                </div>
-                                {errors.agencyName && (
-                                    <p className="mt-1 text-sm text-red-500">{errors.agencyName.message}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Subdominio</label>
-                                <div className="relative">
-                                    <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    <Input
-                                        {...register('subdomain')}
-                                        placeholder="mi-agencia"
-                                        className="pl-12"
-                                        error={errors.subdomain?.message}
-                                    />
-                                </div>
-                                {subdomain && (
-                                    <p className="mt-1 text-xs text-gray-500">
-                                        Tu URL será: <span className="font-medium text-blue-600">{subdomain}.briefflow.com</span>
-                                    </p>
-                                )}
-                                {errors.subdomain && (
-                                    <p className="mt-1 text-sm text-red-500">{errors.subdomain.message}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Tu nombre</label>
-                                <div className="relative">
-                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    <Input
-                                        {...register('name')}
-                                        placeholder="Juan Pérez"
-                                        className="pl-12"
-                                        error={errors.name?.message}
-                                    />
-                                </div>
-                                {errors.name && (
-                                    <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-                                <div className="relative">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    <Input
-                                        {...register('email')}
-                                        type="email"
-                                        placeholder="tu@email.com"
-                                        className="pl-12"
-                                        error={errors.email?.message}
-                                    />
-                                </div>
-                                {errors.email && (
-                                    <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Contraseña</label>
-                                <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    <Input
-                                        {...register('password')}
-                                        type="password"
-                                        placeholder="••••••••"
-                                        className="pl-12"
-                                        error={errors.password?.message}
-                                    />
-                                </div>
-                                {errors.password && (
-                                    <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirmar contraseña</label>
-                                <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                    <Input
-                                        {...register('confirmPassword')}
-                                        type="password"
-                                        placeholder="••••••••"
-                                        className="pl-12"
-                                        error={errors.confirmPassword?.message}
-                                    />
-                                </div>
-                                {errors.confirmPassword && (
-                                    <p className="mt-1 text-sm text-red-500">{errors.confirmPassword.message}</p>
-                                )}
-                            </div>
-
-                            <Button type="submit" className="w-full" loading={isLoading}>
-                                Crear cuenta gratis
-                            </Button>
-
-                            <p className="text-xs text-center text-gray-500">
-                                Al crear una cuenta, aceptas nuestros{' '}
-                                <a href="#" className="text-blue-600 hover:underline">
-                                    Términos de servicio
-                                </a>{' '}
-                                y{' '}
-                                <a href="#" className="text-blue-600 hover:underline">
-                                    Política de privacidad
-                                </a>
-                            </p>
-                        </form>
-
-                        <div className="mt-6 text-center">
-                            <p className="text-sm text-gray-600">
-                                ¿Ya tienes una cuenta?{' '}
-                                <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
-                                    Inicia sesión
-                                </Link>
-                            </p>
                         </div>
                     </div>
+                    <h1 className="text-3xl font-bold text-white">
+                        Crea tu <span className="text-gradient-cyan">Agencia</span>
+                    </h1>
+                    <p className="text-white/40 mt-3 text-lg">
+                        Empieza tu prueba gratis de 14 días
+                    </p>
                 </div>
-            </main>
+
+                {/* Card */}
+                <div className="card-luxury p-8">
+                    {error && (
+                        <div className="p-4 mb-6 rounded-xl bg-red-500/10 border border-red-500/30 flex items-start gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-2" />
+                            <p className="text-sm text-red-200">{error}</p>
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div className="space-y-2">
+                                <label className="label">Nombre de tu agencia</label>
+                                <div className="relative">
+                                    <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                                    <input
+                                        name="agencyName"
+                                        value={formData.agencyName}
+                                        onChange={handleChange}
+                                        placeholder="Acme Studio"
+                                        className="input-luxury pl-11"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="label">Subdominio</label>
+                                <div className="relative">
+                                    <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                                    <input
+                                        name="subdomain"
+                                        value={formData.subdomain}
+                                        onChange={handleChange}
+                                        placeholder="acme"
+                                        className="input-luxury pl-11"
+                                        required
+                                    />
+                                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-white/20 pointer-events-none">
+                                        .brieflow.com
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="label">Tu nombre completo</label>
+                            <div className="relative">
+                                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                                <input
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    placeholder="Juan Pérez"
+                                    className="input-luxury pl-11"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="label">Correo electrónico</label>
+                            <div className="relative">
+                                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    placeholder="juan@acme.com"
+                                    className="input-luxury pl-11"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div className="space-y-2">
+                                <label className="label">Contraseña</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        placeholder="********"
+                                        className="input-luxury pl-11"
+                                        required
+                                        minLength={6}
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="label">Confirmar contraseña</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                                    <input
+                                        type="password"
+                                        name="confirmPassword"
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        placeholder="********"
+                                        className="input-luxury pl-11"
+                                        required
+                                        minLength={6}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="btn-luxury w-full justify-center py-4 text-base font-semibold mt-4"
+                        >
+                            {loading ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    Creando tu espacio...
+                                </>
+                            ) : (
+                                <>
+                                    <Zap className="w-5 h-5" />
+                                    Comenzar prueba gratis
+                                </>
+                            )}
+                        </button>
+                    </form>
+
+                    <p className="text-center text-sm text-white/30 mt-8">
+                        ¿Ya tienes una cuenta?{' '}
+                        <a href="/login" className="text-cyan-400 hover:text-cyan-300 transition-colors font-medium">
+                            Iniciar sesión
+                        </a>
+                    </p>
+                </div>
+
+                <p className="text-center text-xs text-white/20 mt-8 max-w-sm mx-auto leading-relaxed">
+                    Al crear una cuenta, aceptas nuestros <a href="#" className="hover:text-white/40 underline">Términos de servicio</a> y <a href="#" className="hover:text-white/40 underline">Política de privacidad</a>.
+                </p>
+            </div>
         </div>
     );
 }
