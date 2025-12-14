@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import {
-    CheckCircle2,
     ArrowRight,
     Layout,
     Clock,
@@ -8,11 +7,7 @@ import {
     MessageSquare,
     Play,
     Zap,
-    Cpu,
     Network,
-    Briefcase,
-    FileText,
-    Star,
     Check
 } from 'lucide-react';
 import { NeuralBackground } from '@/components/VisualEffects';
@@ -67,7 +62,7 @@ export default function LandingPage() {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
                         </span>
-                        <span className="text-sm font-medium text-cyan-200">Plataforma Inteligente para Agencias v2.0</span>
+                        <span className="text-sm font-medium text-cyan-200">Plataforma Inteligente v2.0 (Live)</span>
                     </div>
 
                     <h1 className="text-5xl lg:text-7xl font-bold text-white tracking-tight mb-8 leading-[1.1] max-w-5xl mx-auto animate-fade-in text-shadow-glow">

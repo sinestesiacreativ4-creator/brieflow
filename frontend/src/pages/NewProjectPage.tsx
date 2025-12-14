@@ -2,11 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { projectsApi, clientsApi } from '@/lib/api';
 import {
-    Layout,
-    Type,
     Calendar,
-    Target,
-    Users,
     ArrowRight,
     Loader2,
     CheckCircle2,
@@ -18,7 +14,6 @@ import {
     Share2,
     MoreHorizontal
 } from 'lucide-react';
-import { useAuthStore } from '@/lib/auth';
 
 const PROJECT_TYPES = [
     { id: 'BRANDING', label: 'Branding', icon: PenTool, desc: 'Identidad de marca, logo, guidelines', color: 'text-purple-400 bg-purple-500/10 border-purple-500/20' },
