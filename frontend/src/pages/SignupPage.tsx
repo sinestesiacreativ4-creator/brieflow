@@ -13,7 +13,7 @@ import {
     ArrowLeft,
 } from 'lucide-react';
 
-// Force Vercel Re-deploy: Midnight Cyan v2
+// Force Update: Using Real Logo
 export default function SignupPage() {
     const navigate = useNavigate();
     const { setAuth } = useAuthStore();
@@ -87,11 +87,7 @@ export default function SignupPage() {
                 {/* Logo */}
                 <div className="text-center mb-10">
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <div className="relative">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-transparent border border-cyan-500/20 flex items-center justify-center shadow-lg shadow-cyan-500/10 backdrop-blur-sm">
-                                <Zap className="w-8 h-8 text-cyan-400" />
-                            </div>
-                        </div>
+                        <img src="/logo.png" alt="BriefFlow Logo" className="w-16 h-16 object-contain drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]" />
                     </div>
                     <h1 className="text-3xl font-bold text-white">
                         Crea tu <span className="text-gradient-cyan">Agencia</span>
