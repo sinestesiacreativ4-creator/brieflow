@@ -1,375 +1,259 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { projectsApi, clientsApi } from '@/lib/api';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
-    ArrowLeft,
+    Layout,
+    Type,
+    Calendar,
+    Target,
+    Users,
     ArrowRight,
-    Check,
-    Palette,
+    Loader2,
+    CheckCircle2,
     Globe,
+    PenTool,
     Megaphone,
     Video,
     Package,
     Share2,
-    MoreHorizontal,
-    Users,
-    Sparkles
+    MoreHorizontal
 } from 'lucide-react';
-import { useEffect } from 'react';
-
-const projectSchema = z.object({
-    name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
-    type: z.string().min(1, 'Selecciona un tipo de proyecto'),
-    clientId: z.string().min(1, 'Selecciona un cliente'),
-    assignedToId: z.string().optional(),
-});
-
-type ProjectFormData = z.infer<typeof projectSchema>;
+import { useAuthStore } from '@/lib/auth';
 
 const PROJECT_TYPES = [
-    {
-        value: 'BRANDING',
-        label: 'Branding',
-        description: 'Identidad de marca, logo, guidelines',
-        icon: Palette,
-        color: 'from-purple-500 to-pink-500',
-        bgColor: 'bg-purple-50',
-        borderColor: 'border-purple-200',
-        activeColor: 'border-purple-500 bg-purple-50 ring-2 ring-purple-500/20',
-    },
-    {
-        value: 'WEB_DESIGN',
-        label: 'Diseño Web',
-        description: 'Websites, landing pages, apps',
-        icon: Globe,
-        color: 'from-blue-500 to-cyan-500',
-        bgColor: 'bg-blue-50',
-        borderColor: 'border-blue-200',
-        activeColor: 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20',
-    },
-    {
-        value: 'ADVERTISING_CAMPAIGN',
-        label: 'Campaña Publicitaria',
-        description: 'Anuncios, creatividades, ads',
-        icon: Megaphone,
-        color: 'from-orange-500 to-red-500',
-        bgColor: 'bg-orange-50',
-        borderColor: 'border-orange-200',
-        activeColor: 'border-orange-500 bg-orange-50 ring-2 ring-orange-500/20',
-    },
-    {
-        value: 'VIDEO_PRODUCTION',
-        label: 'Producción de Video',
-        description: 'Videos promocionales, spots',
-        icon: Video,
-        color: 'from-red-500 to-pink-500',
-        bgColor: 'bg-red-50',
-        borderColor: 'border-red-200',
-        activeColor: 'border-red-500 bg-red-50 ring-2 ring-red-500/20',
-    },
-    {
-        value: 'PACKAGING',
-        label: 'Packaging',
-        description: 'Diseño de empaques y etiquetas',
-        icon: Package,
-        color: 'from-emerald-500 to-teal-500',
-        bgColor: 'bg-emerald-50',
-        borderColor: 'border-emerald-200',
-        activeColor: 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-500/20',
-    },
-    {
-        value: 'SOCIAL_MEDIA',
-        label: 'Redes Sociales',
-        description: 'Contenido para redes, estrategia',
-        icon: Share2,
-        color: 'from-pink-500 to-rose-500',
-        bgColor: 'bg-pink-50',
-        borderColor: 'border-pink-200',
-        activeColor: 'border-pink-500 bg-pink-50 ring-2 ring-pink-500/20',
-    },
-    {
-        value: 'OTHER',
-        label: 'Otro',
-        description: 'Otros tipos de proyectos',
-        icon: MoreHorizontal,
-        color: 'from-gray-500 to-slate-500',
-        bgColor: 'bg-gray-50',
-        borderColor: 'border-gray-200',
-        activeColor: 'border-gray-500 bg-gray-50 ring-2 ring-gray-500/20',
-    },
+    { id: 'BRANDING', label: 'Branding', icon: PenTool, desc: 'Identidad de marca, logo, guidelines', color: 'text-purple-400 bg-purple-500/10 border-purple-500/20' },
+    { id: 'WEB_DESIGN', label: 'Diseño Web', icon: Globe, desc: 'Websites, landing pages, apps', color: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
+    { id: 'ADVERTISING_CAMPAIGN', label: 'Campaña Publicitaria', icon: Megaphone, desc: 'Anuncios, creatividades, ads', color: 'text-orange-400 bg-orange-500/10 border-orange-500/20' },
+    { id: 'VIDEO_PRODUCTION', label: 'Producción de Video', icon: Video, desc: 'Videos promocionales, spots', color: 'text-red-400 bg-red-500/10 border-red-500/20' },
+    { id: 'PACKAGING', label: 'Packaging', icon: Package, desc: 'Diseño de empaques y etiquetas', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
+    { id: 'SOCIAL_MEDIA', label: 'Redes Sociales', icon: Share2, desc: 'Contenido para redes, estrategia', color: 'text-pink-400 bg-pink-500/10 border-pink-500/20' },
+    { id: 'OTHER', label: 'Otro', icon: MoreHorizontal, desc: 'Otros tipos de proyectos', color: 'text-gray-400 bg-gray-500/10 border-gray-500/20' }
 ];
 
 export default function NewProjectPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const clientFromUrl = searchParams.get('client');
     const [step, setStep] = useState(1);
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [clients, setClients] = useState<any[]>([]);
 
-    const {
-        register,
-        handleSubmit,
-        watch,
-        setValue,
-        formState: { errors },
-    } = useForm<ProjectFormData>({
-        resolver: zodResolver(projectSchema),
+    // Form state
+    const [formData, setFormData] = useState({
+        name: '',
+        type: '',
+        clientId: clientFromUrl || '',
+        description: '',
+        deadline: ''
     });
 
-    const selectedType = watch('type');
-    const selectedClientId = watch('clientId');
-
     useEffect(() => {
+        const loadClients = async () => {
+            try {
+                const response = await clientsApi.getAll();
+                setClients(response.data);
+            } catch (error) {
+                console.error('Error loading clients:', error);
+            }
+        };
         loadClients();
     }, []);
 
-    const loadClients = async () => {
-        try {
-            const clientsRes = await clientsApi.getAll();
-            setClients(clientsRes.data.clients || []);
-        } catch (error) {
-            console.error('Error loading clients:', error);
+    const handleCreateProject = async () => {
+        if (!formData.name || !formData.type || !formData.clientId) {
+            // Simple validation
+            return;
         }
-    };
 
-    const onSubmit = async (data: ProjectFormData) => {
-        setError('');
-        setIsLoading(true);
-
+        setLoading(true);
         try {
-            const response = await projectsApi.create(data);
+            const response = await projectsApi.create({
+                name: formData.name,
+                type: formData.type,
+                clientId: formData.clientId,
+                description: formData.description,
+                deadline: formData.deadline ? new Date(formData.deadline).toISOString() : undefined,
+                status: 'BRIEFING'
+            });
+
             navigate(`/projects/${response.data.id}`);
-        } catch (err: any) {
-            setError(err.response?.data?.error || 'Error al crear el proyecto');
+        } catch (error) {
+            console.error('Error creating project:', error);
+            // Handle error (toast, alert, etc.)
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
-
-    const nextStep = () => {
-        if (step === 1 && !watch('name')) {
-            setError('Ingresa un nombre para el proyecto');
-            return;
-        }
-        if (step === 1 && !selectedType) {
-            setError('Selecciona un tipo de proyecto');
-            return;
-        }
-        setError('');
-        setStep(step + 1);
-    };
-
-    const prevStep = () => {
-        setError('');
-        setStep(step - 1);
-    };
-
-    const getSelectedTypeInfo = () => PROJECT_TYPES.find(t => t.value === selectedType);
 
     return (
-        <div className="max-w-3xl mx-auto">
-            {/* Header */}
-            <div className="mb-8">
-                <Button variant="ghost" onClick={() => navigate('/projects')} className="mb-4">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Volver a proyectos
-                </Button>
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
-                        <Sparkles className="w-6 h-6 text-white" />
+        <div className="max-w-4xl mx-auto py-12 px-4">
+            {/* Ambient background */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-20 left-1/4 w-96 h-96 bg-cyan-500/[0.03] rounded-full blur-[100px]" />
+            </div>
+
+            {/* Stepper */}
+            <div className="flex items-center justify-center mb-12 relative z-10">
+                <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-all duration-300 ${step >= 1 ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/20' : 'bg-gray-800 text-gray-400 border border-gray-700'
+                        }`}>
+                        1
                     </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Crear Nuevo Proyecto</h1>
-                        <p className="text-gray-500">Configura tu proyecto en simples pasos</p>
+                    <div className={`w-16 h-1 rounded-full transition-colors duration-300 ${step >= 2 ? 'bg-cyan-500' : 'bg-gray-800'
+                        }`} />
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-all duration-300 ${step >= 2 ? 'bg-cyan-500 text-black shadow-lg shadow-cyan-500/20' : 'bg-gray-800 text-gray-400 border border-gray-700'
+                        }`}>
+                        2
                     </div>
                 </div>
             </div>
 
-            {/* Progress Steps */}
-            <div className="flex items-center gap-4 mb-8">
-                {[1, 2].map((s) => (
-                    <div key={s} className="flex items-center">
-                        <div
-                            className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all ${step >= s
-                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                                : 'bg-gray-100 text-gray-400'
-                                }`}
-                        >
-                            {step > s ? <Check className="w-5 h-5" /> : s}
+            <div className="card-luxury p-8 relative z-10 animate-fade-in">
+                {step === 1 ? (
+                    <div className="space-y-8">
+                        <div className="text-center mb-8">
+                            <h1 className="text-3xl font-bold text-white mb-2">Información del Proyecto</h1>
+                            <p className="text-white/40">Define el nombre y tipo de proyecto para comenzar.</p>
                         </div>
-                        {s < 2 && (
-                            <div
-                                className={`w-24 h-1 mx-3 rounded-full transition-all ${step > s ? 'bg-blue-600' : 'bg-gray-200'
-                                    }`}
-                            />
-                        )}
-                    </div>
-                ))}
-            </div>
 
-            {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
-                    {error}
-                </div>
-            )}
-
-            <form onSubmit={handleSubmit(onSubmit)}>
-                {/* Step 1: Project Info */}
-                {step === 1 && (
-                    <Card className="animate-fade-in">
-                        <CardHeader>
-                            <CardTitle>Información del Proyecto</CardTitle>
-                            <CardDescription>Define el nombre y tipo de proyecto</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-8">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Nombre del Proyecto</label>
-                                <Input
-                                    {...register('name')}
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-white/70 ml-1">Nombre del Proyecto</label>
+                                <input
+                                    type="text"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     placeholder="Ej: Rebranding Empresa XYZ"
-                                    className="text-lg py-6"
-                                    error={errors.name?.message}
+                                    className="input-luxury w-full text-lg py-3"
+                                    autoFocus
                                 />
-                                {errors.name && (
-                                    <p className="mt-2 text-sm text-red-500">{errors.name.message}</p>
-                                )}
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-4">
-                                    ¿Qué tipo de proyecto necesitas?
-                                </label>
+                            <div className="space-y-4">
+                                <label className="text-sm font-medium text-white/70 ml-1">¿Qué tipo de proyecto necesitas?</label>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {PROJECT_TYPES.map((type) => {
-                                        const Icon = type.icon;
-                                        const isSelected = selectedType === type.value;
-
-                                        return (
-                                            <button
-                                                key={type.value}
-                                                type="button"
-                                                onClick={() => setValue('type', type.value)}
-                                                className={`relative p-5 rounded-2xl border-2 text-left transition-all duration-300 group ${isSelected
-                                                    ? type.activeColor
-                                                    : `border-gray-200 hover:${type.borderColor} hover:${type.bgColor}`
-                                                    }`}
-                                            >
-                                                <div className="flex items-start gap-4">
-                                                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${type.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
-                                                        <Icon className="w-6 h-6" />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <p className="font-semibold text-gray-900 text-lg">{type.label}</p>
-                                                        <p className="text-sm text-gray-500 mt-1">{type.description}</p>
-                                                    </div>
-                                                    {isSelected && (
-                                                        <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
-                                                            <Check className="w-4 h-4 text-white" />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            <div className="flex justify-end pt-4 border-t border-gray-100">
-                                <Button type="button" onClick={nextStep} size="lg">
-                                    Siguiente
-                                    <ArrowRight className="w-4 h-4 ml-2" />
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
-
-                {/* Step 2: Client Selection */}
-                {step === 2 && (
-                    <Card className="animate-fade-in">
-                        <CardHeader>
-                            <div className="flex items-center gap-3 mb-2">
-                                {(() => {
-                                    const typeInfo = getSelectedTypeInfo();
-                                    if (!typeInfo) return null;
-                                    const Icon = typeInfo.icon;
-                                    return (
-                                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${typeInfo.color} flex items-center justify-center text-white`}>
-                                            <Icon className="w-5 h-5" />
-                                        </div>
-                                    );
-                                })()}
-                                <div>
-                                    <CardTitle>Seleccionar Cliente</CardTitle>
-                                    <CardDescription>Elige el cliente para este proyecto de {getSelectedTypeInfo()?.label}</CardDescription>
-                                </div>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            {clients.length === 0 ? (
-                                <div className="text-center py-12">
-                                    <div className="w-16 h-16 rounded-2xl bg-blue-100 flex items-center justify-center mx-auto mb-4">
-                                        <Users className="w-8 h-8 text-blue-600" />
-                                    </div>
-                                    <p className="text-gray-500 mb-4">No tienes clientes registrados</p>
-                                    <Button variant="outline" onClick={() => navigate('/clients')}>
-                                        Agregar cliente primero
-                                    </Button>
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {clients.map((client) => (
+                                    {PROJECT_TYPES.map((type) => (
                                         <button
-                                            key={client.id}
-                                            type="button"
-                                            onClick={() => setValue('clientId', client.id)}
-                                            className={`w-full p-5 rounded-2xl border-2 text-left transition-all duration-300 ${selectedClientId === client.id
-                                                ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-500/20'
-                                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                            key={type.id}
+                                            onClick={() => setFormData({ ...formData, type: type.id })}
+                                            className={`flex items-start gap-4 p-4 rounded-xl border text-left transition-all duration-200 group relative overflow-hidden ${formData.type === type.id
+                                                    ? 'bg-cyan-500/10 border-cyan-500 ring-1 ring-cyan-500/50'
+                                                    : 'bg-gray-900/40 border-gray-800 hover:border-gray-700 hover:bg-gray-800/60'
                                                 }`}
                                         >
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/25">
-                                                    {client.name.charAt(0).toUpperCase()}
-                                                </div>
-                                                <div className="flex-1">
-                                                    <p className="font-semibold text-gray-900 text-lg">{client.name}</p>
-                                                    <p className="text-sm text-gray-500">{client.email}</p>
-                                                    {client.company && (
-                                                        <p className="text-xs text-gray-400 mt-1">{client.company}</p>
-                                                    )}
-                                                </div>
-                                                {selectedClientId === client.id && (
-                                                    <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-                                                        <Check className="w-5 h-5 text-white" />
-                                                    </div>
-                                                )}
+                                            <div className={`p-3 rounded-lg ${type.color}`}>
+                                                <type.icon className="w-6 h-6" />
                                             </div>
+                                            <div>
+                                                <h3 className={`font-semibold mb-1 transition-colors ${formData.type === type.id ? 'text-cyan-400' : 'text-white group-hover:text-white/90'}`}>
+                                                    {type.label}
+                                                </h3>
+                                                <p className="text-sm text-white/40 leading-relaxed">
+                                                    {type.desc}
+                                                </p>
+                                            </div>
+                                            {formData.type === type.id && (
+                                                <div className="absolute top-3 right-3">
+                                                    <CheckCircle2 className="w-5 h-5 text-cyan-500" />
+                                                </div>
+                                            )}
                                         </button>
                                     ))}
                                 </div>
-                            )}
-
-                            <div className="flex justify-between pt-6 border-t border-gray-100">
-                                <Button type="button" variant="outline" onClick={prevStep} size="lg">
-                                    <ArrowLeft className="w-4 h-4 mr-2" />
-                                    Anterior
-                                </Button>
-                                <Button type="submit" loading={isLoading} disabled={!selectedClientId} size="lg">
-                                    Crear Proyecto
-                                    <Sparkles className="w-4 h-4 ml-2" />
-                                </Button>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+
+                        <div className="flex justify-end pt-6 border-t border-white/5">
+                            <button
+                                onClick={() => setStep(2)}
+                                disabled={!formData.name || !formData.type}
+                                className="btn-luxury px-8 py-3 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Siguiente
+                                <ArrowRight className="w-4 h-4" />
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="space-y-8 animate-fade-in">
+                        <div className="text-center mb-8">
+                            <h1 className="text-3xl font-bold text-white mb-2">Detalles y Cliente</h1>
+                            <p className="text-white/40">Asigna el proyecto a un cliente y establece los plazos.</p>
+                        </div>
+
+                        <div className="space-y-6 max-w-2xl mx-auto">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-white/70 ml-1">Cliente</label>
+                                <select
+                                    value={formData.clientId}
+                                    onChange={(e) => setFormData({ ...formData, clientId: e.target.value })}
+                                    className="input-luxury w-full py-3"
+                                >
+                                    <option value="" disabled>Selecciona un cliente</option>
+                                    {clients.map(client => (
+                                        <option key={client.id} value={client.id} className="bg-gray-900 text-white">
+                                            {client.name} ({client.companyName})
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className="text-xs text-white/30 ml-1">
+                                    ¿No encuentras al cliente? <button className="text-cyan-400 hover:underline" onClick={() => navigate('/clients')}>Crear nuevo cliente</button>
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-white/70 ml-1">Descripción (Opcional)</label>
+                                <textarea
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    placeholder="Breve descripción del proyecto..."
+                                    className="input-luxury w-full min-h-[120px] py-3 resize-none"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-white/70 ml-1">Fecha de Entrega Estimada (Deadline)</label>
+                                <div className="relative">
+                                    <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
+                                    <input
+                                        type="date"
+                                        value={formData.deadline}
+                                        onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                                        className="input-luxury w-full pl-11 py-3 text-white placeholder-white/30"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-between items-center pt-8 border-t border-white/5">
+                            <button
+                                onClick={() => setStep(1)}
+                                className="text-white/50 hover:text-white px-4 py-2 transition-colors"
+                            >
+                                Atrás
+                            </button>
+                            <button
+                                onClick={handleCreateProject}
+                                disabled={loading || !formData.clientId}
+                                className="btn-luxury px-8 py-3 flex items-center gap-2 min-w-[160px] justify-center"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                        Creando...
+                                    </>
+                                ) : (
+                                    <>
+                                        <CheckCircle2 className="w-5 h-5" />
+                                        Crear Proyecto
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
                 )}
-            </form>
+            </div>
         </div>
     );
 }
