@@ -1,9 +1,9 @@
 import webpush from 'web-push';
 import prisma from '../lib/prisma';
 
-// VAPID Keys - should be in .env in production
-const publicVapidKey = 'BCYxdq1SfQ80HIzkKNBPjRdy3eomYuskIuOGVKVLIXRmzGlnBH921b5vBAHndKlxbXb6buHO0BdCZFOmpA8g_W4';
-const privateVapidKey = 'Bli-9U_7n31DH50WExuWYxUdd17m3duyFL13ojruzsk';
+// VAPID Keys - Generated fresh for production
+const publicVapidKey = 'BGfbj75VjFnTA9o7WunCGQbXJ4wiNqly9kFZE82BtT6_SwMQTSiizvzQ26EJMNVZrJY4-igJFNlCiCBaaqNHjlI';
+const privateVapidKey = 'cskhlU42faa-l0hdRx0Dg2SVu_yLcmhVA8BJ74lnnk8';
 
 webpush.setVapidDetails(
     'mailto:notifications@briefflow.com',

@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import api from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 
-const VAPID_PUBLIC_KEY = 'BCYxdq1SfQ80HIzkKNBPjRdy3eomYuskIuOGVKVLIXRmzGlnBH921b5vBAHndKlxbXb6buHO0BdCZFOmpA8g_W4';
+// VAPID Public Key - Must match backend
+const VAPID_PUBLIC_KEY = 'BGfbj75VjFnTA9o7WunCGQbXJ4wiNqly9kFZE82BtT6_SwMQTSiizvzQ26EJMNVZrJY4-igJFNlCiCBaaqNHjlI';
 
 function urlBase64ToUint8Array(base64String: string) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
