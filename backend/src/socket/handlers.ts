@@ -109,16 +109,22 @@ export function setupSocketHandlers(io: Server) {
                 // Broadcast
                 io.to(`project:${projectId}`).emit('receive-message', message);
 
-                // Notification Logic
                 let targetUserId = null;
+                let recipientIdForDb: string | null = null;
+
                 if (isClient) {
-                    if (project.assignedToId) targetUserId = project.assignedToId;
+                    if (project.assignedToId) {
+                        targetUserId = project.assignedToId;
+                        recipientIdForDb = project.assignedToId;
+                    }
                 } else {
-                    // Try to find user account for client
                     const clientUser = await prisma.user.findFirst({
                         where: { email: project.client.email }
                     });
-                    if (clientUser) targetUserId = clientUser.id;
+                    if (clientUser) {
+                        targetUserId = clientUser.id;
+                    }
+                    recipientIdForDb = project.clientId;
                 }
 
                 if (targetUserId) {
@@ -129,7 +135,6 @@ export function setupSocketHandlers(io: Server) {
                         projectId
                     });
 
-                    // Send Push Notification
                     pushService.sendNotification(targetUserId, {
                         title: `Nuevo mensaje de ${socket.user.name}`,
                         body: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
@@ -137,17 +142,18 @@ export function setupSocketHandlers(io: Server) {
                     });
                 }
 
-                // Save notification to DB
-                await prisma.notification.create({
-                    data: {
-                        type: 'NEW_MESSAGE',
-                        title: 'Nuevo mensaje',
-                        message: `${socket.user.name} envió un mensaje en el proyecto "${project.name}"`,
-                        userId: socket.user.id,
-                        agencyId: socket.user.agencyId,
-                        projectId
-                    }
-                });
+                if (recipientIdForDb) {
+                    await prisma.notification.create({
+                        data: {
+                            type: 'NEW_MESSAGE',
+                            title: 'Nuevo mensaje',
+                            message: `${socket.user.name} envió un mensaje en el proyecto "${project.name}"`,
+                            userId: recipientIdForDb,
+                            agencyId: socket.user?.agencyId!,
+                            projectId
+                        }
+                    });
+                }
 
             } catch (error) {
                 console.error('Send message error:', error);
@@ -185,19 +191,36 @@ export function setupSocketHandlers(io: Server) {
                     updatedBy: socket.user?.name
                 });
 
-                // Create notification in DB
-                await prisma.notification.create({
-                    data: {
+                const notificationsData: { userId: string; agencyId: string; type: string; title: string; message: string; projectId: string }[] = [];
+
+                if (project.assignedToId && project.assignedToId !== socket.user?.id) {
+                    notificationsData.push({
+                        userId: project.assignedToId,
+                        agencyId: socket.user?.agencyId!,
                         type: 'STATUS_CHANGE',
                         title: 'Estado Actualizado',
                         message: `El proyecto "${project.name}" cambió a: ${status}`,
-                        userId: socket.user?.id!,
-                        agencyId: socket.user?.agencyId!,
                         projectId
-                    }
-                });
+                    });
+                }
 
-                // Send Push to assigned user if exists and not the sender
+                if (project.clientId && project.clientId !== socket.user?.id) {
+                    notificationsData.push({
+                        userId: project.clientId,
+                        agencyId: socket.user?.agencyId!,
+                        type: 'STATUS_CHANGE',
+                        title: 'Estado Actualizado',
+                        message: `Tu proyecto "${project.name}" cambió a: ${status}`,
+                        projectId
+                    });
+                }
+
+                if (notificationsData.length > 0) {
+                    await prisma.notification.createMany({
+                        data: notificationsData
+                    });
+                }
+
                 if (project.assignedToId && project.assignedToId !== socket.user?.id) {
                     await pushService.sendNotification(project.assignedToId, {
                         title: `📊 Estado Actualizado`,
