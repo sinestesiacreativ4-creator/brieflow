@@ -36,6 +36,7 @@ interface AuthState {
     logout: () => void;
     verifyToken: () => Promise<boolean>;
     setLoading: (loading: boolean) => void;
+    setAuth: (token: string, user: User, agency: Agency | null) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -46,6 +47,17 @@ export const useAuthStore = create<AuthState>()(
             agency: null,
             isAuthenticated: false,
             isLoading: true,
+
+            setAuth: (token, user, agency) => {
+                localStorage.setItem('token', token);
+                set({
+                    token,
+                    user,
+                    agency,
+                    isAuthenticated: true,
+                    isLoading: false,
+                });
+            },
 
             login: async (email: string, password: string, isClient = false) => {
                 try {

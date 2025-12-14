@@ -13,6 +13,7 @@ import {
     ArrowLeft,
 } from 'lucide-react';
 
+// Force Vercel Re-deploy: Midnight Cyan v2
 export default function SignupPage() {
     const navigate = useNavigate();
     const { setAuth } = useAuthStore();
