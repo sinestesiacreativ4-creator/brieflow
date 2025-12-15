@@ -11,6 +11,7 @@ interface Notification {
     message: string;
     read: boolean;
     projectId?: string;
+    actionUrl?: string;
     createdAt: string;
 }
 
@@ -123,7 +124,10 @@ export function NotificationBell() {
 
     const handleNotificationClick = (notification: Notification) => {
         markAsRead(notification.id);
-        if (notification.projectId) {
+        // Use actionUrl if available (for contract signing, etc.)
+        if (notification.actionUrl) {
+            window.location.href = notification.actionUrl;
+        } else if (notification.projectId) {
             window.location.href = `/projects/${notification.projectId}`;
         }
         setIsOpen(false);
