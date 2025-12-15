@@ -22,6 +22,7 @@ import {
     Layout,
     Zap,
     FileSignature,
+    Pen,
 } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { getWorkflowForType } from '@/lib/workflow';
@@ -593,13 +594,23 @@ export default function ProjectDetailPage() {
 
                             {/* Actions */}
                             <div className="flex gap-4 pt-4 border-t border-white/10">
-                                <button
-                                    onClick={() => setShowContractModal(true)}
-                                    className="btn-luxury"
-                                >
-                                    <Download className="w-4 h-4" />
-                                    Descargar Contrato
-                                </button>
+                                {isClient && contract.status !== 'SIGNED' ? (
+                                    <button
+                                        onClick={() => navigate(`/sign-contract/${contract.id}`)}
+                                        className="btn-luxury"
+                                    >
+                                        <Pen className="w-4 h-4" />
+                                        Firmar Contrato
+                                    </button>
+                                ) : (
+                                    <button
+                                        onClick={() => setShowContractModal(true)}
+                                        className="btn-luxury"
+                                    >
+                                        <Download className="w-4 h-4" />
+                                        {contract.status === 'SIGNED' ? 'Descargar Contrato' : 'Ver/Descargar Contrato'}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ) : (
