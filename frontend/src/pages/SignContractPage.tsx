@@ -76,6 +76,40 @@ export default function SignContractPage() {
         setClientSignature(null);
     };
 
+    // Touch events for mobile
+    const startDrawingTouch = (e: React.TouchEvent<HTMLCanvasElement>) => {
+        e.preventDefault();
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        setIsDrawing(true);
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        ctx.beginPath();
+        ctx.moveTo((touch.clientX - rect.left) * scaleX, (touch.clientY - rect.top) * scaleY);
+    };
+
+    const drawTouch = (e: React.TouchEvent<HTMLCanvasElement>) => {
+        e.preventDefault();
+        if (!isDrawing) return;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        ctx.lineTo((touch.clientX - rect.left) * scaleX, (touch.clientY - rect.top) * scaleY);
+        ctx.strokeStyle = '#00d4ff';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+    };
+
     const signContract = async () => {
         if (!clientSignature || !contractId) return;
         setSigning(true);
@@ -183,13 +217,19 @@ export default function SignContractPage() {
                     </div>
                 </div>
 
-                {/* Terms */}
+                {/* Terms and Conditions - More prominent */}
                 {contract?.terms && (
-                    <div className="bg-gray-900/50 border border-white/10 rounded-2xl p-6 mb-6">
-                        <h2 className="text-lg font-semibold text-white mb-4">Términos y Condiciones</h2>
-                        <div className="text-white/70 text-sm whitespace-pre-wrap max-h-60 overflow-y-auto">
+                    <div className="bg-gray-900/50 border border-cyan-500/20 rounded-2xl p-4 sm:p-6 mb-6">
+                        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <FileText className="w-5 h-5 text-cyan-400" />
+                            Términos y Condiciones
+                        </h2>
+                        <div className="bg-gray-800/50 rounded-xl p-4 mb-4 max-h-[40vh] overflow-y-auto text-white/70 text-sm whitespace-pre-wrap leading-relaxed">
                             {contract.terms}
                         </div>
+                        <p className="text-xs text-cyan-400/70 text-center">
+                            👆 Desplázate para leer todos los términos
+                        </p>
                     </div>
                 )}
 
@@ -219,13 +259,16 @@ export default function SignContractPage() {
                         ref={canvasRef}
                         width={500}
                         height={150}
-                        className="bg-gray-800 rounded-lg border-2 border-dashed border-cyan-500/30 cursor-crosshair w-full"
+                        className="bg-gray-800 rounded-lg border-2 border-dashed border-cyan-500/30 cursor-crosshair w-full touch-none"
                         onMouseDown={startDrawing}
                         onMouseMove={draw}
                         onMouseUp={stopDrawing}
                         onMouseLeave={stopDrawing}
+                        onTouchStart={startDrawingTouch}
+                        onTouchMove={drawTouch}
+                        onTouchEnd={stopDrawing}
                     />
-                    <p className="text-xs text-white/40 mt-2">Dibuja tu firma con el mouse</p>
+                    <p className="text-xs text-white/40 mt-2">Dibuja tu firma con el dedo o mouse</p>
                 </div>
 
                 {/* Sign Button */}
