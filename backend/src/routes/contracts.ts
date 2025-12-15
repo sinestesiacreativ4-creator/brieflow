@@ -223,6 +223,18 @@ router.post('/public/:contractId/sign', async (req, res) => {
             }
         });
 
+        // Notify the agency admin that contract was signed
+        await prisma.notification.create({
+            data: {
+                type: 'CONTRACT_SIGNED',
+                title: '✅ Contrato firmado',
+                message: `El cliente "${contract.clientName}" ha firmado el contrato del proyecto "${contract.projectName}".`,
+                userId: '', // Agency admin
+                agencyId: contract.agencyId,
+                projectId: contract.projectId
+            }
+        });
+
         res.json(updatedContract);
     } catch (error) {
         console.error('Sign contract error:', error);
