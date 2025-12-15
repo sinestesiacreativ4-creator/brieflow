@@ -106,3 +106,13 @@ export const authApi = {
     register: (data: any) => api.post('/auth/register', data),
     getProfile: () => api.get('/auth/me'),
 };
+
+export const contractsApi = {
+    generate: (projectId: string, data?: { terms?: string; agencySignature?: string }) =>
+        api.post(`/contracts/${projectId}/generate`, data),
+    get: (projectId: string) => api.get(`/contracts/${projectId}`),
+    sign: (contractId: string, signature: string) =>
+        api.post(`/contracts/${contractId}/sign`, { signature }),
+    update: (contractId: string, data: { terms?: string; agencySignature?: string }) =>
+        api.patch(`/contracts/${contractId}`, data),
+};

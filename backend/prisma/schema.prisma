@@ -152,3 +152,33 @@ model Notification {
   projectId String?
   createdAt DateTime @default(now())
 }
+
+model Contract {
+  id              String    @id @default(cuid())
+  projectId       String    @unique
+  agencyId        String
+  
+  // Contract content
+  clientName      String
+  clientCompany   String?
+  clientEmail     String
+  projectName     String
+  projectType     String
+  deliverables    String?
+  budget          String?
+  timeline        String?
+  terms           String?   @db.Text
+  
+  // PDF
+  pdfUrl          String?
+  
+  // Signature
+  status          String    @default("PENDING") // PENDING, SIGNED
+  agencySignature String?   @db.Text
+  clientSignature String?   @db.Text
+  signedAt        DateTime?
+  signedByIp      String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}

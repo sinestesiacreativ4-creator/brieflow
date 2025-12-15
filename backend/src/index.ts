@@ -15,6 +15,7 @@ import fileRoutes from './routes/files';
 import dashboardRoutes from './routes/dashboard';
 import notificationRoutes from './routes/notifications';
 import uploadRoutes from './routes/upload';
+import contractRoutes from './routes/contracts';
 import { setupSocketHandlers } from './socket/handlers';
 import { authenticateToken } from './middleware/auth';
 import { pushService } from './services/pushNotification';
@@ -56,6 +57,7 @@ app.use('/api/team', authenticateToken, teamRoutes);
 app.use('/api/files', authenticateToken, fileRoutes);
 app.use('/api/dashboard', authenticateToken, dashboardRoutes);
 app.use('/api/upload', authenticateToken, uploadRoutes);
+app.use('/api/contracts', authenticateToken, contractRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 console.log('✅ Notification routes loaded (V2)');

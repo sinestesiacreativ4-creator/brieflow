@@ -21,10 +21,12 @@ import {
     Loader2,
     Layout,
     Zap,
+    FileSignature,
 } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { getWorkflowForType } from '@/lib/workflow';
 import jsPDF from 'jspdf';
+import ContractGenerator from '@/components/ContractGenerator';
 
 export default function ProjectDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -37,6 +39,7 @@ export default function ProjectDetailPage() {
     const [sendingMessage, setSendingMessage] = useState(false);
     const [uploadingFile, setUploadingFile] = useState(false);
     const [approvingBrief, setApprovingBrief] = useState(false);
+    const [showContractModal, setShowContractModal] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const {
@@ -241,6 +244,16 @@ export default function ProjectDetailPage() {
                             <StatusBadge status={project.status} />
                         </div>
                     </div>
+                    {/* Contract Button - Solo para admins */}
+                    {!isClient && (
+                        <button
+                            onClick={() => setShowContractModal(true)}
+                            className="btn-luxury flex items-center gap-2"
+                        >
+                            <FileSignature className="w-4 h-4" />
+                            Generar Contrato
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -574,6 +587,14 @@ export default function ProjectDetailPage() {
                     )}
                 </div>
             )}
+
+            {/* Contract Generator Modal */}
+            <ContractGenerator
+                project={project}
+                isOpen={showContractModal}
+                onClose={() => setShowContractModal(false)}
+                onGenerated={() => loadProject()}
+            />
         </div>
     );
 }
