@@ -137,14 +137,24 @@ export default function SignContractPage() {
     if (error) {
         return (
             <div className="min-h-screen bg-[#050507] flex items-center justify-center p-4">
-                <div className="bg-gray-900 border border-red-500/30 rounded-2xl p-8 max-w-md text-center">
-                    <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
-                    <h1 className="text-xl font-bold text-white mb-2">Error</h1>
-                    <p className="text-white/50">{error}</p>
+                <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-8 max-w-md w-full text-center">
+                    <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+                        <AlertCircle className="w-8 h-8 text-red-500" />
+                    </div>
+                    <h2 className="text-xl font-bold text-white mb-2">Error al cargar contrato</h2>
+                    <p className="text-white/60 mb-6">{error}</p>
+                    <p className="text-white/30 text-xs">
+                        Si acabas de generar el contrato, espera unos minutos a que el sistema se actualice.
+                    </p>
+                    <Button onClick={() => window.location.reload()} className="mt-4 bg-white/10 hover:bg-white/20">
+                        Reintentar
+                    </Button>
                 </div>
             </div>
         );
     }
+
+
 
     if (signed) {
         return (
