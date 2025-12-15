@@ -115,15 +115,33 @@ router.post('/:contractId/send', async (req: AuthRequest, res: Response) => {
             return;
         }
 
+        // Get the project with client to find userId
+        const project = await prisma.project.findUnique({
+            where: { id: contract.projectId },
+            include: { client: true }
+        });
+
+        // Get client user if exists
+        let clientUserId = '';
+        if (project?.client?.email) {
+            const clientUser = await prisma.user.findFirst({
+                where: { email: project.client.email, role: 'CLIENT' }
+            });
+            if (clientUser) {
+                clientUserId = clientUser.id;
+            }
+        }
+
         // Create notification for the client
         await prisma.notification.create({
             data: {
                 type: 'CONTRACT_PENDING',
                 title: '📝 Contrato pendiente de firma',
                 message: `Tienes un contrato pendiente para el proyecto "${contract.projectName}". Haz clic para revisar y firmar.`,
-                userId: '', // Will be filled with client user if exists
+                userId: clientUserId,
                 agencyId: contract.agencyId,
-                projectId: contract.projectId
+                projectId: contract.projectId,
+                actionUrl: `/sign-contract/${contract.id}`
             }
         });
 

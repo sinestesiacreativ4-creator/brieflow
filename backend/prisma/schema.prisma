@@ -150,6 +150,7 @@ model Notification {
   // user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   agencyId  String
   projectId String?
+  actionUrl String?
   createdAt DateTime @default(now())
 }
 
