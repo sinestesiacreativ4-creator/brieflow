@@ -126,6 +126,72 @@ router.get('/:projectId', async (req: AuthRequest, res: Response) => {
     }
 });
 
+// PUBLIC: Get contract by ID (for client signing - no auth required)
+router.get('/public/:contractId', async (req, res) => {
+    try {
+        const { contractId } = req.params;
+
+        const contract = await prisma.contract.findUnique({
+            where: { id: contractId }
+        });
+
+        if (!contract) {
+            res.status(404).json({ error: 'Contrato no encontrado' });
+            return;
+        }
+
+        res.json(contract);
+    } catch (error) {
+        console.error('Get public contract error:', error);
+        res.status(500).json({ error: 'Error al obtener contrato' });
+    }
+});
+
+// PUBLIC: Sign contract (for clients - no auth required)
+router.post('/public/:contractId/sign', async (req, res) => {
+    try {
+        const { contractId } = req.params;
+        const { signature } = req.body;
+
+        if (!signature) {
+            res.status(400).json({ error: 'Firma requerida' });
+            return;
+        }
+
+        const contract = await prisma.contract.findUnique({
+            where: { id: contractId }
+        });
+
+        if (!contract) {
+            res.status(404).json({ error: 'Contrato no encontrado' });
+            return;
+        }
+
+        if (contract.status === 'SIGNED') {
+            res.status(400).json({ error: 'El contrato ya fue firmado' });
+            return;
+        }
+
+        // Get client IP for audit
+        const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+
+        const updatedContract = await prisma.contract.update({
+            where: { id: contractId },
+            data: {
+                clientSignature: signature,
+                status: 'SIGNED',
+                signedAt: new Date(),
+                signedByIp: Array.isArray(clientIp) ? clientIp[0] : clientIp
+            }
+        });
+
+        res.json(updatedContract);
+    } catch (error) {
+        console.error('Sign contract error:', error);
+        res.status(500).json({ error: 'Error al firmar contrato' });
+    }
+});
+
 // Sign contract (for clients)
 router.post('/:contractId/sign', async (req: AuthRequest, res: Response) => {
     try {

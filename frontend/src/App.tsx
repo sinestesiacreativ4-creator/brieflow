@@ -15,6 +15,7 @@ import TeamPage from '@/pages/TeamPage';
 import SettingsPage from '@/pages/SettingsPage';
 import ClientBriefWizard from '@/pages/ClientBriefWizard';
 import WorkflowPage from '@/pages/WorkflowPage';
+import SignContractPage from '@/pages/SignContractPage';
 
 // Layouts
 import DashboardLayout from '@/layouts/DashboardLayout';
@@ -94,6 +95,9 @@ export default function App() {
             </PublicRoute>
           }
         />
+
+        {/* Public Contract Signing */}
+        <Route path="/sign-contract/:contractId" element={<SignContractPage />} />
 
         {/* Protected Agency Routes */}
         <Route

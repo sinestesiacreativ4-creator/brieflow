@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, FileText, Download, Send, Pen, Check, Loader2 } from 'lucide-react';
+import { X, FileText, Download, Send, Pen, Check, Loader2, Copy, CheckCircle } from 'lucide-react';
 import { contractsApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 
@@ -13,6 +13,8 @@ interface ContractGeneratorProps {
 export default function ContractGenerator({ project, isOpen, onClose, onGenerated }: ContractGeneratorProps) {
     const [step, setStep] = useState<'preview' | 'sign' | 'success'>('preview');
     const [loading, setLoading] = useState(false);
+    const [sending, setSending] = useState(false);
+    const [linkCopied, setLinkCopied] = useState(false);
     const [contract, setContract] = useState<any>(null);
     const [agencySignature, setAgencySignature] = useState<string | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -48,6 +50,28 @@ export default function ContractGenerator({ project, isOpen, onClose, onGenerate
             alert(error.response?.data?.error || 'Error al generar contrato');
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Send contract to client
+    const sendToClient = async () => {
+        if (!contract?.id) return;
+        setSending(true);
+        try {
+            // Create signing URL
+            const signUrl = `${window.location.origin}/sign-contract/${contract.id}`;
+
+            // Copy to clipboard
+            await navigator.clipboard.writeText(signUrl);
+            setLinkCopied(true);
+
+            // Show success for 3 seconds then reset
+            setTimeout(() => setLinkCopied(false), 3000);
+        } catch (error) {
+            console.error('Error copying link:', error);
+            alert('Error al copiar el enlace');
+        } finally {
+            setSending(false);
         }
     };
 
@@ -291,9 +315,19 @@ export default function ContractGenerator({ project, isOpen, onClose, onGenerate
                                     <Download className="w-4 h-4 mr-2" />
                                     Descargar
                                 </Button>
-                                <Button variant="outline" className="border-white/20 text-white hover:bg-white/5">
-                                    <Send className="w-4 h-4 mr-2" />
-                                    Enviar al Cliente
+                                <Button
+                                    onClick={sendToClient}
+                                    disabled={sending}
+                                    variant="outline"
+                                    className={`border-white/20 text-white hover:bg-white/5 ${linkCopied ? 'border-green-500 text-green-400' : ''}`}
+                                >
+                                    {sending ? (
+                                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Copiando...</>
+                                    ) : linkCopied ? (
+                                        <><CheckCircle className="w-4 h-4 mr-2" /> ¡Link Copiado!</>
+                                    ) : (
+                                        <><Copy className="w-4 h-4 mr-2" /> Copiar Link para Cliente</>
+                                    )}
                                 </Button>
                             </div>
                         </div>

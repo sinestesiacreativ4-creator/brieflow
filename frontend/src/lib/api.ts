@@ -115,4 +115,8 @@ export const contractsApi = {
         api.post(`/contracts/${contractId}/sign`, { signature }),
     update: (contractId: string, data: { terms?: string; agencySignature?: string }) =>
         api.patch(`/contracts/${contractId}`, data),
+    // Public endpoints (no auth required)
+    getPublic: (contractId: string) => api.get(`/contracts/public/${contractId}`),
+    signPublic: (contractId: string, signature: string) =>
+        api.post(`/contracts/public/${contractId}/sign`, { signature }),
 };
