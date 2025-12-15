@@ -241,15 +241,24 @@ router.post('/public/:contractId/sign', async (req, res) => {
             }
         });
 
+        // Get agency admin to notify
+        const agencyAdmin = await prisma.user.findFirst({
+            where: {
+                agencyId: contract.agencyId,
+                role: { in: ['ADMIN', 'OWNER'] }
+            }
+        });
+
         // Notify the agency admin that contract was signed
         await prisma.notification.create({
             data: {
                 type: 'CONTRACT_SIGNED',
                 title: '✅ Contrato firmado',
                 message: `El cliente "${contract.clientName}" ha firmado el contrato del proyecto "${contract.projectName}".`,
-                userId: '', // Agency admin
+                userId: agencyAdmin?.id || '',
                 agencyId: contract.agencyId,
-                projectId: contract.projectId
+                projectId: contract.projectId,
+                actionUrl: `/projects/${contract.projectId}`
             }
         });
 
