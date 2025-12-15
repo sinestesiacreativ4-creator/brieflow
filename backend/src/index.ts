@@ -16,6 +16,7 @@ import dashboardRoutes from './routes/dashboard';
 import notificationRoutes from './routes/notifications';
 import uploadRoutes from './routes/upload';
 import contractRoutes from './routes/contracts';
+import publicContractRoutes from './routes/contractsPublic';
 import { setupSocketHandlers } from './socket/handlers';
 import { authenticateToken } from './middleware/auth';
 import { pushService } from './services/pushNotification';
@@ -47,6 +48,7 @@ app.set('io', io);
 
 // Public routes
 app.use('/api/auth', authRoutes);
+app.use('/api/contracts/public', publicContractRoutes); // Public contract routes (signing)
 
 // Protected routes
 app.use('/api/agency', authenticateToken, agencyRoutes);
@@ -57,7 +59,7 @@ app.use('/api/team', authenticateToken, teamRoutes);
 app.use('/api/files', authenticateToken, fileRoutes);
 app.use('/api/dashboard', authenticateToken, dashboardRoutes);
 app.use('/api/upload', authenticateToken, uploadRoutes);
-app.use('/api/contracts', authenticateToken, contractRoutes);
+app.use('/api/contracts', authenticateToken, contractRoutes); // Protected contract routes
 app.use('/api/notifications', notificationRoutes);
 
 console.log('✅ Notification routes loaded (V2)');
