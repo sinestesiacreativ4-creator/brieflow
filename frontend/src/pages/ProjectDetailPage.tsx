@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { projectsApi, briefsApi, filesApi } from '@/lib/api';
+import { projectsApi, briefsApi, filesApi, contractsApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth';
 import { useSocket } from '@/hooks/useSocket';
 import { StatusBadge } from '@/components/ui/badge';
@@ -40,6 +40,7 @@ export default function ProjectDetailPage() {
     const [uploadingFile, setUploadingFile] = useState(false);
     const [approvingBrief, setApprovingBrief] = useState(false);
     const [showContractModal, setShowContractModal] = useState(false);
+    const [contract, setContract] = useState<any>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const {
@@ -71,6 +72,14 @@ export default function ProjectDetailPage() {
         try {
             const response = await projectsApi.getOne(id!);
             setProject(response.data);
+
+            // Load contract if exists
+            try {
+                const contractRes = await contractsApi.get(id!);
+                setContract(contractRes.data);
+            } catch {
+                setContract(null);
+            }
         } catch (error) {
             console.error('Error loading project:', error);
             navigate('/projects');
@@ -219,6 +228,7 @@ export default function ProjectDetailPage() {
     const tabs = [
         { id: 'workflow', label: 'Workflow', icon: Layout },
         { id: 'brief', label: 'Brief', icon: FileText },
+        { id: 'contract', label: 'Contrato', icon: FileSignature },
         { id: 'chat', label: 'Chat', icon: MessageSquare, count: project.messages?.length },
         { id: 'files', label: 'Archivos', icon: Upload, count: project.files?.length },
     ];
@@ -510,6 +520,105 @@ export default function ProjectDetailPage() {
                             </button>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {/* Contract Tab */}
+            {activeTab === 'contract' && (
+                <div className="card-luxury p-8 animate-fade-in">
+                    <h2 className="text-xl font-bold text-white mb-6">Contrato del Proyecto</h2>
+
+                    {contract ? (
+                        <div className="space-y-6">
+                            {/* Contract Status */}
+                            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10">
+                                {contract.status === 'SIGNED' ? (
+                                    <>
+                                        <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
+                                            <CheckCircle2 className="w-6 h-6 text-green-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-white font-semibold">Contrato Firmado</p>
+                                            <p className="text-white/50 text-sm">Firmado el {formatDate(contract.signedAt)}</p>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center">
+                                            <Clock className="w-6 h-6 text-yellow-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-white font-semibold">Pendiente de Firma</p>
+                                            <p className="text-white/50 text-sm">Esperando firma del cliente</p>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Contract Details */}
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-white">Detalles</h3>
+                                    <div className="space-y-2 text-sm">
+                                        <p><span className="text-white/50">Cliente:</span> <span className="text-white">{contract.clientName}</span></p>
+                                        <p><span className="text-white/50">Proyecto:</span> <span className="text-white">{contract.projectName}</span></p>
+                                        <p><span className="text-white/50">Presupuesto:</span> <span className="text-cyan-400 font-semibold">{contract.budget || 'N/A'}</span></p>
+                                        <p><span className="text-white/50">Timeline:</span> <span className="text-white">{contract.timeline || 'N/A'}</span></p>
+                                    </div>
+                                </div>
+
+                                {/* Signatures */}
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-white">Firmas</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                                            <p className="text-white/50 text-xs mb-2">Agencia</p>
+                                            {contract.agencySignature ? (
+                                                <img src={contract.agencySignature} alt="Firma Agencia" className="h-12 object-contain" />
+                                            ) : (
+                                                <p className="text-white/30 text-sm">Sin firma</p>
+                                            )}
+                                        </div>
+                                        <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                                            <p className="text-white/50 text-xs mb-2">Cliente</p>
+                                            {contract.clientSignature ? (
+                                                <img src={contract.clientSignature} alt="Firma Cliente" className="h-12 object-contain" />
+                                            ) : (
+                                                <p className="text-white/30 text-sm">Pendiente</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-4 pt-4 border-t border-white/10">
+                                <button
+                                    onClick={() => setShowContractModal(true)}
+                                    className="btn-luxury"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    Descargar Contrato
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-center py-12">
+                            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+                                <FileSignature className="w-8 h-8 text-white/30" />
+                            </div>
+                            <p className="text-white/50 mb-4">No hay contrato para este proyecto</p>
+                            {!isClient && (
+                                <button
+                                    onClick={() => setShowContractModal(true)}
+                                    className="btn-luxury"
+                                >
+                                    <FileSignature className="w-4 h-4" />
+                                    Generar Contrato
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
 
