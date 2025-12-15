@@ -96,6 +96,44 @@ router.post('/:projectId/generate', async (req: AuthRequest, res: Response) => {
     }
 });
 
+// Send contract to client (creates in-app notification)
+router.post('/:contractId/send', async (req: AuthRequest, res: Response) => {
+    try {
+        if (req.user!.role === 'CLIENT') {
+            res.status(403).json({ error: 'Solo administradores pueden enviar contratos' });
+            return;
+        }
+
+        const { contractId } = req.params;
+
+        const contract = await prisma.contract.findFirst({
+            where: { id: contractId, agencyId: req.user!.agencyId }
+        });
+
+        if (!contract) {
+            res.status(404).json({ error: 'Contrato no encontrado' });
+            return;
+        }
+
+        // Create notification for the client
+        await prisma.notification.create({
+            data: {
+                type: 'CONTRACT_PENDING',
+                title: '📝 Contrato pendiente de firma',
+                message: `Tienes un contrato pendiente para el proyecto "${contract.projectName}". Haz clic para revisar y firmar.`,
+                userId: '', // Will be filled with client user if exists
+                agencyId: contract.agencyId,
+                projectId: contract.projectId
+            }
+        });
+
+        res.json({ success: true, message: 'Contrato enviado al cliente' });
+    } catch (error) {
+        console.error('Send contract error:', error);
+        res.status(500).json({ error: 'Error al enviar contrato' });
+    }
+});
+
 // Get contract for a project
 router.get('/:projectId', async (req: AuthRequest, res: Response) => {
     try {
